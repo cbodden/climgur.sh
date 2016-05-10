@@ -29,8 +29,6 @@ function screenshot()
 
 if [ ${NFILE} -eq 1 ]; then
         $(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
-    else
-        
 fi
 
 
