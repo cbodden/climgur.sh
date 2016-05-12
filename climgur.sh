@@ -33,10 +33,14 @@ function image()
         ;;
         'u'|'upload') printf "\n${IMAGE}\n"
             printf "Path to file ? (full path) : " ; read _FILE_PATH
-            if [ $(file ${_FILE_PATH} | grep -c "image data") -ne 0 ]; then
-                echo "file is good"
+            if grep -q "image data" <(file ${_FILE_PATH}); then
+                curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
+                    -F "image=@${_FILE_PATH}" \
+                    "https://api.imgur.com/3/upload" |\
+                    python -m json.tool |\
+                    sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
             else
-                echo "check file name"
+                usage;
             fi
         ;;
         *) printf "\nOptions\n\n" ;;
@@ -50,10 +54,10 @@ function usage()
 
 function account_info()
 {
-curl -sH \
-    "Authorization:Client-ID ${CLIENT_ID}" \
-    https://api.imgur.com/3/account/${USER_NAME} |\
-    python -m json.tool
+    curl -sH \
+        "Authorization:Client-ID ${CLIENT_ID}" \
+        https://api.imgur.com/3/account/${USER_NAME} |\
+        python -m json.tool
 }
 
 while getopts "ahi:s" OPT; do
