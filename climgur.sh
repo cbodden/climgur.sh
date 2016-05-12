@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-#set -e
-#set -o pipefail
+set -e
+set -o pipefail
 readonly NAME=$(basename $0)
 readonly VER="0.01"
 source .climgur.rc
@@ -58,7 +58,5 @@ while getopts "ahsu:" OPT; do
         u) file upload ;;
     esac
 done
-## testing for options passed - if none passed
 [ ${OPTIND} -eq 1 ] && { usage ; }
 shift $((OPTIND-1))
-echo "$# non-option arguments"
