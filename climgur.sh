@@ -21,20 +21,20 @@ trap 'rm -rf ${TMP_FILE} ; exit 1' 0 1 2 3 9 15
 [ -z $(which curl 2>/dev/null) ] &&\
     { printf "%s\n" "curl not found"; exit 1; }
 
-
-
-
-
-
-function image_upload()
+function image()
 {
-    #$(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
-    $(which scrot) -z ${TMP_FILE} >/dev/null 2>&1
-    ## tested : curl -sH "Authorization: Client-ID ${client_id}" \
-    ##  -F "image=@img.png" \
-    ##  "https://api.imgur.com/3/upload" |\
-    ##  python -m json.tool |\
-    ##  sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
+    case "${IMAGE}" in
+        's'|'ss'|'screenshot')
+            #$(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
+            $(which scrot) -z ${TMP_FILE} >/dev/null 2>&1
+            ## tested : curl -sH "Authorization: Client-ID ${client_id}" \
+            ##  -F "image=@img.png" \
+            ##  "https://api.imgur.com/3/upload" |\
+            ##  python -m json.tool |\
+            ##  sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
+        ;;
+        'u'|'upload') ;;
+    esac
 }
 
 function usage()
@@ -63,6 +63,8 @@ while getopts "ahsu:" OPT; do
     case "${OPT}" in
         a) account_info ;;
         h) usage ;;
+        i) IMAGE=$OPTARG
+            image ;;
         s) screenshot ;;
         u) file upload ;;
     esac
