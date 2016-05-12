@@ -2,10 +2,9 @@
 
 set -e
 set -o pipefail
-clear
 readonly NAME=$(basename $0)
-readonly CLIENT_ID=""
 readonly VER="0.01"
+source .climgur.rc
 
 # temp file and trap statement - trap for clean end
 case "$(uname 2>/dev/null)" in
@@ -24,6 +23,28 @@ trap 'printf "${NAME}: Quitting.\n\n" 1>&2 ; \
 [ -z $(which curl 2>/dev/null) ] &&\
     { printf "%s\n" "curl not found"; exit 1; }
 
+function screenshot()
+{
+    # $(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
+    $(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
+}
+
+function upload()
+{
+curl -sH \
+    "Authorization: Client-ID ${CLIENT_ID}" \
+    -F "image=@${TMP_FILE}" \
+    "https://api.imgur.com/3/upload"
+}
+
+function account_info()
+{
+curl -sH \
+    "Authorization:Client-ID ${CLIENT_ID}" \
+    https://api.imgur.com/3/account/${USER_NAME} |\
+    python -m json.tool
+}
+
 while getopts ":hsu:" OPT; do
     case "${OPT}" in
         'h'|'-h') usage ;;
@@ -33,18 +54,3 @@ while getopts ":hsu:" OPT; do
     esac
 done
 shift $((OPTIND-1))
-
-
-
-function screenshot()
-{
-    # $(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
-    $(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
-}
-
-
-function upload()
-{
-curl -sH "Authorization: Client-ID ${CLIENT_ID}" -F "image=@${TMP_FILE}" \
-    "https://api.imgur.com/3/upload"
-}
