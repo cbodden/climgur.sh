@@ -43,7 +43,7 @@ function image()
 {
     case "${IMAGE}" in
         'd'|'del'|'delete')
-            printf "deletehash of the image to be deleted ? : " ; read _FILE_DEL
+            printf "deletehash of image to be deleted ? : " ; read _FILE_DEL
             curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
                 -X DELETE \
                 "https://api.imgur.com/3/image/${_FILE_DEL}" |\
@@ -53,7 +53,8 @@ function image()
         's'|'ss'|'screenshot')
             $(which scrot) -z ${TMP_FILE} >/dev/null 2>&1
             curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
-                -F "image=@${TMP_FILE}" "https://api.imgur.com/3/upload" |\
+                -F "image=@${TMP_FILE}" \
+                "https://api.imgur.com/3/upload" |\
                 python -m json.tool |\
                 sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
         ;;
