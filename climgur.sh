@@ -11,7 +11,6 @@ case "$(uname 2>/dev/null)" in
     'Linux') TMP_FILE=$(mktemp --tmpdir img_$$-XXXX.png) ;;
     'Darwin') TMP_FILE=$(mktemp img_$$-XXXX.png) ;;
 esac
-
 trap 'rm -rf ${TMP_FILE} ; exit 1' 0 1 2 3 9 15
 
 # check if scrot exists
@@ -22,10 +21,19 @@ trap 'rm -rf ${TMP_FILE} ; exit 1' 0 1 2 3 9 15
 [ -z $(which curl 2>/dev/null) ] &&\
     { printf "%s\n" "curl not found"; exit 1; }
 
-function screenshot()
+
+
+
+
+
+function image_upload()
 {
     # $(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
     $(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
+    ## tested : curl -sH "Authorization: Client-ID ${client_id}" \
+    ##  -F "image=@img.png" \
+    ##  "https://api.imgur.com/3/upload" |\
+    ##  python -m json.tool
 }
 
 function usage()
