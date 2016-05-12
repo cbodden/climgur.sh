@@ -28,12 +28,13 @@ trap 'rm -rf ${TMP_FILE} ; exit 1' 0 1 2 3 9 15
 
 function image_upload()
 {
-    # $(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
-    $(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
+    #$(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
+    $(which scrot) -z ${TMP_FILE} >/dev/null 2>&1
     ## tested : curl -sH "Authorization: Client-ID ${client_id}" \
     ##  -F "image=@img.png" \
     ##  "https://api.imgur.com/3/upload" |\
-    ##  python -m json.tool
+    ##  python -m json.tool |\
+    ##  sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
 }
 
 function usage()
