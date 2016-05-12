@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-set -e
-set -o pipefail
+#set -e
+#set -o pipefail
 readonly NAME=$(basename $0)
 readonly VER="0.01"
 source .climgur.rc
 
 # temp file and trap statement - trap for clean end
 case "$(uname 2>/dev/null)" in
-    'Linux') local TMP_FILE=$(mktemp --tmpdir img_$$-XXXX.png) ;;
-    'Darwin') local TMP_FILE=$(mktemp img_$$-XXXX.png) ;;
+    'Linux') TMP_FILE=$(mktemp --tmpdir img_$$-XXXX.png) ;;
+    'Darwin') TMP_FILE=$(mktemp img_$$-XXXX.png) ;;
 esac
 
 trap 'printf "${NAME}: Quitting.\n\n" 1>&2 ; \
@@ -45,6 +45,8 @@ curl -sH \
     python -m json.tool
 }
 
+function _t()
+{
 while getopts ":hsu:" OPT; do
     case "${OPT}" in
         'h'|'-h') usage ;;
@@ -54,3 +56,6 @@ while getopts ":hsu:" OPT; do
     esac
 done
 shift $((OPTIND-1))
+}
+
+account_info
