@@ -12,8 +12,7 @@ case "$(uname 2>/dev/null)" in
     'Darwin') TMP_FILE=$(mktemp img_$$-XXXX.png) ;;
 esac
 
-trap 'printf "${NAME}: Quitting.\n\n" 1>&2 ; \
-    rm -rf ${TMP_FILE} ; exit 1' 0 1 2 3 9 15
+trap 'rm -rf ${TMP_FILE} ; exit 1' 0 1 2 3 9 15
 
 # check if scrot exists
 [ -z $(which scrot 2>/dev/null) ] &&\
@@ -27,6 +26,12 @@ function screenshot()
 {
     # $(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
     $(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
+}
+
+function usage()
+{
+    clear
+    printf "\ntesting\n"
 }
 
 function upload()
@@ -45,17 +50,15 @@ curl -sH \
     python -m json.tool
 }
 
-function _t()
-{
-while getopts ":hsu:" OPT; do
+while getopts "ahsu:" OPT; do
     case "${OPT}" in
-        'h'|'-h') usage ;;
-        's'|'-s') screenshot ;;
-        'u'|'-u') file upload ;;
-        *) ;;
+        a) account_info ;;
+        h) usage ;;
+        s) screenshot ;;
+        u) file upload ;;
     esac
 done
+## testing for options passed - if none passed
+[ ${OPTIND} -eq 1 ] && { usage ; }
 shift $((OPTIND-1))
-}
-
-account_info
+echo "$# non-option arguments"
