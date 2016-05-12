@@ -13,17 +13,43 @@ case "$(uname 2>/dev/null)" in
 esac
 trap 'rm -rf ${TMP_FILE} ; exit 1' 0 1 2 3 9 15
 
-# check if scrot exists
-[ -z $(which scrot 2>/dev/null) ] \
-    && { printf "%s\n" "scrot not found"; exit 1; }
-
 # check if curl exists
 [ -z $(which curl 2>/dev/null) ] \
     && { printf "%s\n" "curl not found"; exit 1; }
 
+#check if python exists for json.tool
+[ -z $(which python 2>/dev/null) ] \
+    && { printf "%s\n" "python not found"; exit 1; }
+
+# check if scrot exists
+[ -z $(which scrot 2>/dev/null) ] \
+    && { printf "%s\n" "scrot not found"; exit 1; }
+
+function account()
+{
+    case "${ACCOUNT}" in
+        'i'|'info')
+            curl -sH \
+                "Authorization:Client-ID ${CLIENT_ID}" \
+                https://api.imgur.com/3/account/${USER_NAME} |\
+                python -m json.tool |\
+                sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
+        ;;
+        *) printf "\nAccount function\n\n" ;;
+    esac
+}
+
 function image()
 {
     case "${IMAGE}" in
+        'd'|'del'|'delete')
+            printf "deletehash of the image to be deleted ? : " ; read _FILE_DEL
+            curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
+                -X DELETE \
+                "https://api.imgur.com/3/image/${_FILE_DEL}" |\
+                python -m json.tool |\
+                sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
+        ;;
         's'|'ss'|'screenshot')
             $(which scrot) -z ${TMP_FILE} >/dev/null 2>&1
             curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
@@ -31,7 +57,7 @@ function image()
                 python -m json.tool |\
                 sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
         ;;
-        'u'|'upload') printf "\n${IMAGE}\n"
+        'u'|'upload')
             printf "Path to file ? (full path) : " ; read _FILE_PATH
             if grep -q "image data" <(file ${_FILE_PATH}); then
                 curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
@@ -43,21 +69,13 @@ function image()
                 usage;
             fi
         ;;
-        *) printf "\nOptions\n\n" ;;
+        *) printf "\nImage function\n\n" ;;
     esac
 }
 
 function usage()
 {
     printf "\ntesting\n\n"
-}
-
-function account_info()
-{
-    curl -sH \
-        "Authorization:Client-ID ${CLIENT_ID}" \
-        https://api.imgur.com/3/account/${USER_NAME} |\
-        python -m json.tool
 }
 
 while getopts "ahi:s" OPT; do
