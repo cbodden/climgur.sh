@@ -27,20 +27,19 @@ function image()
         's'|'ss'|'screenshot')
             #$(which scrot) -z "${_SC_OPT}" ${TMP_FILE} >/dev/null 2>&1
             $(which scrot) -z ${TMP_FILE} >/dev/null 2>&1
-            ## tested : curl -sH "Authorization: Client-ID ${client_id}" \
-            ##  -F "image=@img.png" \
-            ##  "https://api.imgur.com/3/upload" |\
-            ##  python -m json.tool |\
-            ##  sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
+            curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
+                -F "image=@${TMP_FILE}" "https://api.imgur.com/3/upload" |\
+                python -m json.tool |\
+                sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
         ;;
         'u'|'upload') ;;
+        *) printf "\nOptions\n\n" ;;
     esac
 }
 
 function usage()
 {
-    clear
-    printf "\ntesting\n"
+    printf "\ntesting\n\n"
 }
 
 function upload()
@@ -59,7 +58,7 @@ curl -sH \
     python -m json.tool
 }
 
-while getopts "ahsu:" OPT; do
+while getopts "ahi:su:" OPT; do
     case "${OPT}" in
         a) account_info ;;
         h) usage ;;
