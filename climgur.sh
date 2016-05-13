@@ -6,12 +6,19 @@ readonly NAME=$(basename $0)
 readonly VER="0.01"
 source .climgur.rc
 
-# temp file and trap statement - trap for clean end
+# temp file, trap statement, and OS check. exit on !{Linux,Darwin}
 case "$(uname 2>/dev/null)" in
-    'Linux') TMP_FILE=$(mktemp --tmpdir img_$$-XXXX.png) ;;
-    'Darwin') TMP_FILE=$(mktemp img_$$-XXXX.png) ;;
+    'Linux')
+        TMP_IMG=$(mktemp --tmpdir img_$$-XXXX.png)
+        TMP_LOG=$(mktemp --tmpdir img_$$-XXXX.log)
+    ;;
+    'Darwin')
+        TMP_IMG=$(mktemp img_$$-XXXX.png)
+        TMP_LOG=$(mktemp img_$$-XXXX.log)
+    ;;
+    *) version; description; usage; exit 1 ;;
 esac
-trap 'rm -rf ${TMP_FILE} ; exit 1' 0 1 2 3 9 15
+trap 'rm -rf ${TMP_IMG} ${TMP_LOG} ; exit 1' 0 1 2 3 9 15
 
 # check if curl exists
 [ -z $(which curl 2>/dev/null) ] \
@@ -51,9 +58,9 @@ function image()
                 sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
         ;;
         's'|'ss'|'screenshot')
-            $(which scrot) -z ${TMP_FILE} >/dev/null 2>&1
+            $(which scrot) -z ${TMP_IMG} >/dev/null 2>&1
             curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
-                -F "image=@${TMP_FILE}" \
+                -F "image=@${TMP_IMG}" \
                 "https://api.imgur.com/3/upload" |\
                 python -m json.tool |\
                 sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
