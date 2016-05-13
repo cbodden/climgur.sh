@@ -102,8 +102,40 @@ function log()
         image_screenshot)
             _ID=$(grep "\"id\"" ${TMP_LOG} | cut -d\" -f4)
             _DH=$(grep "\"deletehash\"" ${TMP_LOG} | cut -d\" -f4)
+            cp ${TMP_LOG} ${LOG_PATH}/${_ID}_${_DH}.log
         ;;
-        image_upload) ;;
+        image_upload)
+            _ID=$(grep "\"id\"" ${TMP_LOG} | cut -d\" -f4)
+            _DH=$(grep "\"deletehash\"" ${TMP_LOG} | cut -d\" -f4)
+            cp ${TMP_LOG} ${LOG_PATH}/${_ID}_${_DH}.log
+        ;;
+        list)
+            local CNT=0
+            declare -a _LIST=($(\
+                for _LN in $(ls -v ${LOG_PATH})
+                do
+                    echo ${_LN}
+                done))
+
+            if [ $(echo ${#_LIST[@]}) -ge 1 ]; then
+                printf -- "%s\n" "Here is the list of files:"
+                for _listL in "${_LIST[@]}" 
+                do
+                    echo [${CNT}] ${_listL}
+                    local CNT=$((CNT+1))
+                done
+                printf "%s" "Enter log number and press [ENTER]: "
+                read LIST_IN
+                local LIST_SHOW="${_LIST[${LIST_IN}]}"
+            elif [ $(echo ${#_LIST[@]}) -eq 1 ]; then
+                local LIST_SHOW="$(echo ${_LIST[1]})"
+            else
+                printf -- "File not found \n\n" exit 1
+            fi
+
+            echo ${LIST_SHOW}
+            cat ${LOG_PATH}${LIST_SHOW}
+        ;;
     esac
 }
 
