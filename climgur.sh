@@ -4,6 +4,7 @@ set -e
 set -o pipefail
 readonly NAME=$(basename $0)
 readonly VER="0.01"
+readonly IMG_PATH="http://i.imgur.com/"
 source .climgur.rc
 
 # temp file, trap statement, and OS check. exit on !{Linux,Darwin}
@@ -91,7 +92,7 @@ function image()
 
 function log()
 {
-    local LOG_TYPE=$1
+    # local LOG_TYPE=$1
     local LOG_PATH="${HOME}/.climgur_logs"
     [ ! -d "${LOG_PATH}" ] \
         && { mkdir ${LOG_PATH} ; }
@@ -119,9 +120,9 @@ function log()
 
             if [ $(echo ${#_LIST[@]}) -ge 1 ]; then
                 printf -- "%s\n" "Here is the list of files:"
-                for _listL in "${_LIST[@]}" 
+                for _listL in "${_LIST[@]}"
                 do
-                    echo [${CNT}] ${_listL}
+                    echo "[${CNT}] ${_listL}  --  ${IMG_PATH}${_listL%%_*}.png"
                     local CNT=$((CNT+1))
                 done
                 printf "%s" "Enter log number and press [ENTER]: "
@@ -133,8 +134,7 @@ function log()
                 printf -- "File not found \n\n" exit 1
             fi
 
-            echo ${LIST_SHOW}
-            cat ${LOG_PATH}${LIST_SHOW}
+            cat ${LOG_PATH}/${LIST_SHOW}
         ;;
     esac
 }
@@ -144,12 +144,14 @@ function usage()
     printf "\ntesting\n\n"
 }
 
-while getopts "ahi:s" OPT; do
+while getopts "ahi:l:s" OPT; do
     case "${OPT}" in
         a) account_info ;;
         h) usage ;;
         i) IMAGE=$OPTARG
             image ;;
+        l) LOG_TYPE=$OPTARG
+            log ;;
         s) IMAGE="screenshot"
             image ;;
     esac
