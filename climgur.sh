@@ -40,7 +40,9 @@ function account()
                 "Authorization:Client-ID ${CLIENT_ID}" \
                 https://api.imgur.com/3/account/${USER_NAME} |\
                 python -m json.tool |\
-                sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
+                sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
+                tee ${TMP_LOG}
+            log account_info
         ;;
         *) printf "\nAccount function\n\n" ;;
     esac
@@ -55,7 +57,9 @@ function image()
                 -X DELETE \
                 "https://api.imgur.com/3/image/${_FILE_DEL}" |\
                 python -m json.tool |\
-                sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
+                sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
+                tee ${TMP_LOG}
+            log image_delete
         ;;
         's'|'ss'|'screenshot')
             $(which scrot) -z ${TMP_IMG} >/dev/null 2>&1
@@ -63,7 +67,9 @@ function image()
                 -F "image=@${TMP_IMG}" \
                 "https://api.imgur.com/3/upload" |\
                 python -m json.tool |\
-                sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
+                sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
+                tee ${TMP_LOG}
+            log image_screenshot
         ;;
         'u'|'upload')
             printf "Path to file ? (full path) : " ; read _FILE_PATH
@@ -72,13 +78,22 @@ function image()
                     -F "image=@${_FILE_PATH}" \
                     "https://api.imgur.com/3/upload" |\
                     python -m json.tool |\
-                    sed -e 's/^ *//g' -e '/{/d' -e '/}/d'
+                    sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
+                    tee ${TMP_LOG}
+                log image_upload
             else
                 usage;
             fi
         ;;
         *) printf "\nImage function\n\n" ;;
     esac
+}
+
+function log()
+{
+    local LOG_PATH="${HOME}/.climgur_logs"
+    [ ! -d "${LOG_PATH}" ] \
+        && { mkdir ${LOG_PATH} ; }
 }
 
 function usage()
