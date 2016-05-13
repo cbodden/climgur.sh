@@ -95,6 +95,16 @@ function log()
     local LOG_PATH="${HOME}/.climgur_logs"
     [ ! -d "${LOG_PATH}" ] \
         && { mkdir ${LOG_PATH} ; }
+
+    case "${LOG_TYPE}" in
+        account_info) ;;
+        image_delete) ;;
+        image_screenshot)
+            _ID=$(grep "\"id\"" ${TMP_LOG} | cut -d\" -f4)
+            _DH=$(grep "\"deletehash\"" ${TMP_LOG} | cut -d\" -f4)
+        ;;
+        image_upload) ;;
+    esac
 }
 
 function usage()
