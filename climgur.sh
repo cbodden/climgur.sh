@@ -5,6 +5,7 @@ set -o pipefail
 readonly NAME=$(basename $0)
 readonly VER="0.01"
 readonly IMG_PATH="http://i.imgur.com/"
+readonly LOG_PATH="${HOME}/.climgur_logs"
 source .climgur.rc
 
 # temp file, trap statement, and OS check. exit on !{Linux,Darwin}
@@ -93,7 +94,6 @@ function image()
 function log()
 {
     # local LOG_TYPE=$1
-    local LOG_PATH="${HOME}/.climgur_logs"
     [ ! -d "${LOG_PATH}" ] \
         && { mkdir ${LOG_PATH} ; }
 
