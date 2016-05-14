@@ -1,15 +1,22 @@
 climgur.sh
 ====
 
-This scrip is used for adding and removing images to imgur from the command 
+This script is used for adding and removing images to imgur from the command 
 line.<br>
 More features being added.
 
 Usage
 ----
 
-Filling this in soon.
+<pre><code>
+NAME
+    climgur.sh - this is for adding and deleting images from imgur
 
+SYNOPSIS
+    climgur.sh [OPTION]... [FILE]...
+
+DESCRIPTION
+</code></pre>
 
 Requirements
 ----
@@ -21,6 +28,7 @@ Requirements
 
 Todo / Add
 ----
+
 
 License and Author
 ----
