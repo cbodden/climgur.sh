@@ -268,6 +268,8 @@ DESCRIPTION
                 list
                     This option lists and shows log files
 
+    -o      This opens image in either browser or feh
+
     -s      This bypasses using "-i screenshot" for quick screenshots
 
     -v      Show version
