@@ -39,12 +39,15 @@ function main()
     if [ ! -d "${CLIMGUR_PATH}" ]; then
         mkdir -p ${CLIMGUR_PATH} ${CLIMGUR_PATH}/logs
     fi
+    if [ ! -d "${CLIMGUR_PATH}/logs" ]; then
+        mkdir ${CLIMGUR_PATH}/logs
+    fi
 
     readonly LOG_PATH="${CLIMGUR_PATH}/logs"
 
     # check for .climgur.rc exists
     if [ ! -e "${CLIMGUR_PATH}/.climgur.rc" ]; then
-        printf "%s\n" ".climgur.rc does not exist."
+        printf "%s\n" ".climgur.rc does not exist. Check the usage section."
         exit 1
     else
         source ${CLIMGUR_PATH}/.climgur.rc
