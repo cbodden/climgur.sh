@@ -27,7 +27,7 @@ function main()
     trap 'rm -rf ${TMP_IMG} ${TMP_LOG} ; exit 1' 0 1 2 3 9 15
 
     # check if these deps exist else exit 1
-    local DEPS="curl python scrot"
+    local DEPS="curl feh python scrot xdg-open"
     for _DEPS in ${DEPS}; do
         if [ -z "$(which ${_DEPS} 2>>/dev/null)" ]; then
             printf "%s\n" "${_DEPS} not found"
@@ -195,6 +195,44 @@ function log()
 esac
 }
 
+function open()
+{
+    local CNT=0
+    declare -a _OPEN=($(\
+        for _LN in $(ls -v ${LOG_PATH})
+        do
+            echo ${_LN}
+        done))
+
+    if [ $(echo ${#_OPEN[@]}) -ge 1 ]; then
+        printf -- "%s\n" "Here is the list of files:"
+        for _listL in "${_OPEN[@]}"
+        do
+            echo "[${CNT}] ${_listL}  --  ${IMG_PATH}${_listL%%_*}.png"
+            local CNT=$((CNT+1))
+        done
+        printf "%s" "Enter log number to open and press [ENTER]: "
+        read OPEN_IN
+        local OPEN_SHOW="${_OPEN[${OPEN_IN}]}"
+    elif [ $(echo ${#_OPEN[@]}) -eq 1 ]; then
+        local OPEN_SHOW="$(echo ${_OPEN[1]})"
+    else
+        printf "\nLog directory is empty.\n\n"
+        exit 1
+    fi
+
+    printf "\nOpen in browser or feh [(b)rowser or (f)eh]: "
+    read OPEN_TYPE
+    case "${OPEN_TYPE}" in
+        b|browser)
+            xdg-open ${IMG_PATH}${_listL%%_*}.png
+        ;;
+        f|feh)
+            feh --scale-down ${IMG_PATH}${_listL%%_*}.png
+        ;;
+    esac
+}
+
 function usage()
 {
 cat <<EOL
@@ -258,13 +296,14 @@ EOL
 main
 
 # the actual selector of the script
-while getopts "ahi:l:sv" OPT; do
+while getopts "ahi:l:osv" OPT; do
     case "${OPT}" in
         a) account_info ;;
         h) usage ;;
         i) IMAGE=$OPTARG
             image ;;
         l) log list ;;
+        o) open ;;
         s) IMAGE="screenshot"
             image ;;
         v) version ;;
