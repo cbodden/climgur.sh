@@ -56,6 +56,8 @@ function main()
             fi
         done
     fi
+
+#    clear
 }
 
 function account()
@@ -78,14 +80,40 @@ function image()
 {
     case "${IMAGE}" in
         'd'|'del'|'delete')
-            printf "deletehash of image to be deleted ? : " ; read _FILE_DEL
+            local D_CNT=0
+            declare -a _DEL_LIST=($(\
+                for _LN in $(ls -v ${LOG_PATH})
+                do
+                    echo ${_LN}
+                done))
+
+            if [ $(echo ${#_DEL_LIST[@]}) -ge 1 ]; then
+                printf -- "%s\n" "Here is the list of files:"
+                for _listL in "${_DEL_LIST[@]}"
+                do
+                    printf "%s" \
+                        "[${D_CNT}] ${_listL}  --  ${IMG_PATH}${_listL%%_*}.png"
+                    local D_CNT=$((D_CNT+1))
+                done
+                printf "\n\nEnter log number to delete and press [ENTER]: "
+                read DEL_LIST_IN
+                local DEL_LIST_SHOW="${_DEL_LIST[${DEL_LIST_IN}]}"
+            elif [ $(echo ${#_DEL_LIST[@]}) -eq 1 ]; then
+                local DEL_LIST_SHOW="$(echo ${_DEL_LIST[1]})"
+            else
+                printf -- "File not found \n\n" exit 1
+            fi
+
+            local HASH="$(echo ${DEL_LIST_SHOW##*_} | cut -d. -f1)"
+
             curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
                 -X DELETE \
-                "https://api.imgur.com/3/image/${_FILE_DEL}" \
+                "https://api.imgur.com/3/image/${HASH}" \
                 | python -m json.tool \
                 | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
                 | tee ${TMP_LOG}
-            log image_delete
+            printf "\n${IMG_PATH}${_listL%%_*}.png deleted\n"
+            # log image_delete ${_listL}
         ;;
         's'|'ss'|'screenshot')
             $(which scrot) -z ${TMP_IMG} >/dev/null 2>&1
@@ -117,17 +145,21 @@ function image()
 
 function log()
 {
+    local LOG_TYPE=${1}
     case "${LOG_TYPE}" in
         account_info) ;;
-        image_delete) ;;
+        image_delete)
+            local LOG_NAME=$2
+            cat ${TMP_LOG} > ${LOG_NAME}
+        ;;
         image_screenshot)
-            _ID=$(grep "\"id\"" ${TMP_LOG} | cut -d\" -f4)
-            _DH=$(grep "\"deletehash\"" ${TMP_LOG} | cut -d\" -f4)
+            local _ID=$(grep "\"id\"" ${TMP_LOG} | cut -d\" -f4)
+            local _DH=$(grep "\"deletehash\"" ${TMP_LOG} | cut -d\" -f4)
             cp ${TMP_LOG} ${LOG_PATH}/${_ID}_${_DH}.log
         ;;
         image_upload)
-            _ID=$(grep "\"id\"" ${TMP_LOG} | cut -d\" -f4)
-            _DH=$(grep "\"deletehash\"" ${TMP_LOG} | cut -d\" -f4)
+            local _ID=$(grep "\"id\"" ${TMP_LOG} | cut -d\" -f4)
+            local _DH=$(grep "\"deletehash\"" ${TMP_LOG} | cut -d\" -f4)
             cp ${TMP_LOG} ${LOG_PATH}/${_ID}_${_DH}.log
         ;;
         list)
@@ -148,13 +180,13 @@ function log()
                 printf "%s" "Enter log number and press [ENTER]: "
                 read LIST_IN
                 local LIST_SHOW="${_LIST[${LIST_IN}]}"
+                cat ${LOG_PATH}/${LIST_SHOW}
             elif [ $(echo ${#_LIST[@]}) -eq 1 ]; then
                 local LIST_SHOW="$(echo ${_LIST[1]})"
+                cat ${LOG_PATH}/${LIST_SHOW}
             else
-                printf -- "File not found \n\n" exit 1
+                printf "\nLog directory is empty.\n\n" exit 1
             fi
-
-            cat ${LOG_PATH}/${LIST_SHOW}
         ;;
     esac
 }
@@ -174,8 +206,7 @@ while getopts "ahi:l:s" OPT; do
         h) usage ;;
         i) IMAGE=$OPTARG
             image ;;
-        l) LOG_TYPE=$OPTARG
-            log ;;
+        l) log list ;;
         s) IMAGE="screenshot"
             image ;;
     esac
