@@ -188,13 +188,26 @@ function log()
                 printf "\nLog directory is empty.\n\n" exit 1
             fi
         ;;
-    esac
+esac
 }
 
 function usage()
 {
     printf "\ntesting\n\n"
 }
+
+function version()
+{
+    cat <<EOL
+
+                             ${NAME} version ${VER}
+                  Copyright (C) 2016 cesar@pissedoffadmins.com
+                This program comes with ABSOLUTELY NO WARRANTY.
+         This is free software, and you are welcome to redistribute it.
+
+EOL
+}
+
 
 # call function main
 main
@@ -211,5 +224,6 @@ while getopts "ahi:l:s" OPT; do
             image ;;
     esac
 done
-[ ${OPTIND} -eq 1 ] && { usage ; }
+[ ${OPTIND} -eq 1 ] && { version ; }
+# [ ${OPTIND} -eq 1 ] && { usage ; }
 shift $((OPTIND-1))
