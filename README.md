@@ -16,6 +16,32 @@ SYNOPSIS
     climgur.sh [OPTION]... [FILE]...
 
 DESCRIPTION
+    Access your Imgur account from the command line.
+    Options can only be used one at a time for now.
+
+
+    -a      Access your account info.
+
+    -h      Show this file (usage).
+
+    -i [options]
+            This is to handle images manipulations
+            Options include :
+                delete
+                    This option shows a list of files with choice of delete
+                screenshot
+                    This option takes a screenshot and uploads it
+                upload [path to file|path to folder]
+                    This option allows for file uploads
+
+    -l [options]
+            This handles showing what is in the log folder
+            Options include :
+                list
+                    This option lists and shows log files
+
+    -s      This bypasses using "-i screenshot" for quick screenshots
+
 </code></pre>
 
 Requirements
