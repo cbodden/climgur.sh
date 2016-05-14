@@ -193,7 +193,6 @@ esac
 
 function usage()
 {
-    printf "\ntesting\n\n"
 }
 
 function version()
