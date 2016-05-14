@@ -150,23 +150,23 @@ function log()
 {
     local LOG_TYPE=${1}
     case "${LOG_TYPE}" in
-        account_info) ;;
-        image_delete)
+        'account_info') ;;
+        'image_delete')
             LOG_NAME=${2}
             cat ${TMP_LOG} > ${LOG_PATH}/deleted_${LOG_NAME}
             rm ${LOG_PATH}/${LOG_NAME}
         ;;
-        image_screenshot)
+        'image_screenshot')
             local _ID=$(grep "\"id\"" ${TMP_LOG} | cut -d\" -f4)
             local _DH=$(grep "\"deletehash\"" ${TMP_LOG} | cut -d\" -f4)
             cp ${TMP_LOG} ${LOG_PATH}/${_ID}_${_DH}.log
         ;;
-        image_upload)
+        'image_upload')
             local _ID=$(grep "\"id\"" ${TMP_LOG} | cut -d\" -f4)
             local _DH=$(grep "\"deletehash\"" ${TMP_LOG} | cut -d\" -f4)
             cp ${TMP_LOG} ${LOG_PATH}/${_ID}_${_DH}.log
         ;;
-        list)
+        'list')
             local CNT=0
             declare -a _LIST=($(\
                 for _LN in $(ls -v ${LOG_PATH})
@@ -224,10 +224,10 @@ function open()
     printf "\nOpen in browser or feh [(b)rowser or (f)eh]: "
     read OPEN_TYPE
     case "${OPEN_TYPE}" in
-        b|browser)
+        'b'|'browser')
             xdg-open ${IMG_PATH}${_listL%%_*}.png
         ;;
-        f|feh)
+        'f'|'feh')
             feh --scale-down ${IMG_PATH}${_listL%%_*}.png
         ;;
     esac
@@ -300,15 +300,15 @@ main
 # the actual selector of the script
 while getopts "ahi:l:osv" OPT; do
     case "${OPT}" in
-        a) account_info ;;
-        h) usage ;;
-        i) IMAGE=$OPTARG
+        'a') account_info ;;
+        'h') usage ;;
+        'i') IMAGE=$OPTARG
             image ;;
-        l) log list ;;
-        o) open ;;
-        s) IMAGE="screenshot"
+        'l') log list ;;
+        'o') open ;;
+        's') IMAGE="screenshot"
             image ;;
-        v) version ;;
+        'v') version ;;
     esac
 done
 [ ${OPTIND} -eq 1 ] && { usage ; }
