@@ -27,7 +27,7 @@ License and Author
 
 Author:: Cesar Bodden (cesar@pissedoffadmins.com)
 
-Copyright:: 2013, Pissedoffadmins.com
+Copyright:: 2016, Pissedoffadmins.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
