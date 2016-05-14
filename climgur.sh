@@ -115,7 +115,7 @@ function image()
                 | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
                 | tee ${TMP_LOG}
             printf "\n${IMG_PATH}${_listL%%_*}.png deleted\n"
-            # log image_delete ${_listL}
+            log image_delete ${_listL}
         ;;
         's'|'ss'|'screenshot')
             $(which scrot) -z ${TMP_IMG} >/dev/null 2>&1
@@ -151,8 +151,9 @@ function log()
     case "${LOG_TYPE}" in
         account_info) ;;
         image_delete)
-            local LOG_NAME=$2
-            cat ${TMP_LOG} > ${LOG_NAME}
+            LOG_NAME=${2}
+            cat ${TMP_LOG} > ${LOG_PATH}/deleted_${LOG_NAME}
+            rm ${LOG_PATH}/${LOG_NAME}
         ;;
         image_screenshot)
             local _ID=$(grep "\"id\"" ${TMP_LOG} | cut -d\" -f4)
