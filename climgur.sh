@@ -128,7 +128,8 @@ function image()
             log image_screenshot
         ;;
         'u'|'upload')
-            printf "Path to file ? (full path) : " ; read _FILE_PATH
+            printf "Path to file ? (tab complete full path) : "
+            read -e _FILE_PATH
             if grep -q "image data" <(file ${_FILE_PATH}); then
                 curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
                     -F "image=@${_FILE_PATH}" \
