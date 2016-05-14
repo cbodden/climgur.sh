@@ -42,6 +42,11 @@ DESCRIPTION
 
     -s      This bypasses using "-i screenshot" for quick screenshots
 
+
+    This all reads the .climgur.rc file which should be located in
+    $HOME/.climgur
+    A sample rc file is in the github repo which shows what should be in there.
+
 </code></pre>
 
 Requirements

@@ -20,7 +20,6 @@ function main()
             TMP_LOG=$(mktemp img_$$-XXXX.log)
         ;;
         *)
-            description
             usage
             exit 1
         ;;
@@ -57,7 +56,7 @@ function main()
         done
     fi
 
-#    clear
+    clear
 }
 
 function account()
@@ -193,6 +192,47 @@ esac
 
 function usage()
 {
+cat <<EOL
+
+NAME
+    climgur.sh - this is for adding and deleting images from imgur
+
+SYNOPSIS
+    climgur.sh [OPTION]... [FILE]...
+
+DESCRIPTION
+    Access your Imgur account from the command line.
+    Options can only be used one at a time for now.
+
+
+    -a      Access your account info.
+
+    -h      Show this file (usage).
+
+    -i [options]
+            This is to handle images manipulations
+            Options include :
+                delete
+                    This option shows a list of files with choice of delete
+                screenshot
+                    This option takes a screenshot and uploads it
+                upload [path to file|path to folder]
+                    This option allows for file uploads
+
+    -l [options]
+            This handles showing what is in the log folder
+            Options include :
+                list
+                    This option lists and shows log files
+
+    -s      This bypasses using "-i screenshot" for quick screenshots
+
+
+    This all reads the .climgur.rc file which should be located in
+    $HOME/.climgur
+    A sample rc file is in the github repo which shows what should be in there.
+
+EOL
 }
 
 function version()
@@ -212,7 +252,7 @@ EOL
 main
 
 # the actual selector of the script
-while getopts "ahi:l:s" OPT; do
+while getopts "ahi:l:sv" OPT; do
     case "${OPT}" in
         a) account_info ;;
         h) usage ;;
@@ -221,8 +261,8 @@ while getopts "ahi:l:s" OPT; do
         l) log list ;;
         s) IMAGE="screenshot"
             image ;;
+        v) version ;;
     esac
 done
-[ ${OPTIND} -eq 1 ] && { version ; }
-# [ ${OPTIND} -eq 1 ] && { usage ; }
+[ ${OPTIND} -eq 1 ] && { usage ; }
 shift $((OPTIND-1))
