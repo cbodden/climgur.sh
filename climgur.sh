@@ -3,7 +3,7 @@
 set -e
 set -o pipefail
 readonly NAME=$(basename $0)
-readonly VER="0.01"
+readonly VER="0.20"
 readonly CLIMGUR_PATH="${HOME}/.climgur"
 readonly IMG_PATH="http://i.imgur.com/"
 
@@ -19,7 +19,11 @@ function main()
             TMP_IMG=$(mktemp img_$$-XXXX.png)
             TMP_LOG=$(mktemp img_$$-XXXX.log)
         ;;
-        *) version; description; usage; exit 1 ;;
+        *)
+            description
+            usage
+            exit 1
+        ;;
     esac
     trap 'rm -rf ${TMP_IMG} ${TMP_LOG} ; exit 1' 0 1 2 3 9 15
 
@@ -160,8 +164,10 @@ function usage()
     printf "\ntesting\n\n"
 }
 
+# call function main
 main
 
+# the actual selector of the script
 while getopts "ahi:l:s" OPT; do
     case "${OPT}" in
         a) account_info ;;
