@@ -4,35 +4,55 @@ set -e
 set -o pipefail
 readonly NAME=$(basename $0)
 readonly VER="0.01"
+readonly CLIMGUR_PATH="${HOME}/.climgur"
 readonly IMG_PATH="http://i.imgur.com/"
-readonly LOG_PATH="${HOME}/.climgur_logs"
-source .climgur.rc
 
-# temp file, trap statement, and OS check. exit on !{Linux,Darwin}
-case "$(uname 2>/dev/null)" in
-    'Linux')
-        TMP_IMG=$(mktemp --tmpdir img_$$-XXXX.png)
-        TMP_LOG=$(mktemp --tmpdir img_$$-XXXX.log)
-    ;;
-    'Darwin')
-        TMP_IMG=$(mktemp img_$$-XXXX.png)
-        TMP_LOG=$(mktemp img_$$-XXXX.log)
-    ;;
-    *) version; description; usage; exit 1 ;;
-esac
-trap 'rm -rf ${TMP_IMG} ${TMP_LOG} ; exit 1' 0 1 2 3 9 15
+function main()
+{
+    # temp file, trap statement, and OS check. exit on !{Linux,Darwin}
+    case "$(uname 2>/dev/null)" in
+        'Linux')
+            TMP_IMG=$(mktemp --tmpdir img_$$-XXXX.png)
+            TMP_LOG=$(mktemp --tmpdir img_$$-XXXX.log)
+        ;;
+        'Darwin')
+            TMP_IMG=$(mktemp img_$$-XXXX.png)
+            TMP_LOG=$(mktemp img_$$-XXXX.log)
+        ;;
+        *) version; description; usage; exit 1 ;;
+    esac
+    trap 'rm -rf ${TMP_IMG} ${TMP_LOG} ; exit 1' 0 1 2 3 9 15
 
-# check if curl exists
-[ -z $(which curl 2>/dev/null) ] \
-    && { printf "%s\n" "curl not found"; exit 1; }
+    # check if these deps exist else exit 1
+    local DEPS="curl python scrot"
+    for _DEPS in ${DEPS}; do
+        if [ -z "$(which ${_DEPS} 2>>/dev/null)" ]; then
+            printf "%s\n" "${_DEPS} not found"
+            exit 1
+        fi
+    done
 
-#check if python exists for json.tool
-[ -z $(which python 2>/dev/null) ] \
-    && { printf "%s\n" "python not found"; exit 1; }
+    # check if climgur log and rc path exists else create
+    if [ ! -d "${CLIMGUR_PATH}" ]; then
+        mkdir -p ${CLIMGUR_PATH} ${CLIMGUR_PATH}/logs
+    fi
 
-# check if scrot exists
-[ -z $(which scrot 2>/dev/null) ] \
-    && { printf "%s\n" "scrot not found"; exit 1; }
+    readonly LOG_PATH="${CLIMGUR_PATH}/logs"
+
+    # check for .climgur.rc exists
+    if [ ! -e "${CLIMGUR_PATH}/.climgur.rc" ]; then
+        printf "%s\n" ".climgur.rc does not exist."
+        exit 1
+    else
+        source ${CLIMGUR_PATH}/.climgur.rc
+        local RC_LIST="CLIENT_ID CLIENT_SECRET USER_NAME"
+        for _RC_LIST in ${RC_LIST}; do
+            if [ -z "${_RC_LIST}" ]; then
+                printf "%s\n" "${_RC_LIST} is not set"
+            fi
+        done
+    fi
+}
 
 function account()
 {
@@ -93,10 +113,6 @@ function image()
 
 function log()
 {
-    # local LOG_TYPE=$1
-    [ ! -d "${LOG_PATH}" ] \
-        && { mkdir ${LOG_PATH} ; }
-
     case "${LOG_TYPE}" in
         account_info) ;;
         image_delete) ;;
@@ -143,6 +159,8 @@ function usage()
 {
     printf "\ntesting\n\n"
 }
+
+main
 
 while getopts "ahi:l:s" OPT; do
     case "${OPT}" in
