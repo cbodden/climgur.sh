@@ -5,6 +5,8 @@ This script is used for adding and removing images to imgur from the command
 line.<br>
 More features being added.
 
+Keys can be grabbed : https://api.imgur.com/oauth2/addclient
+
 Usage
 ----
 
