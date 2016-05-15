@@ -93,11 +93,11 @@ function image()
                 printf -- "%s\n" "Here is the list of files:"
                 for _listL in "${_DEL_LIST[@]}"
                 do
-                    printf "%s" \
+                    echo \
                         "[${D_CNT}] ${_listL}  --  ${IMG_PATH}${_listL%%_*}.png"
                     local D_CNT=$((D_CNT+1))
                 done
-                printf "\n\nEnter log number to delete and press [ENTER]: "
+                printf "\nEnter log number to delete and press [ENTER]: "
                 read DEL_LIST_IN
                 local DEL_LIST_SHOW="${_DEL_LIST[${DEL_LIST_IN}]}"
             elif [ $(echo ${#_DEL_LIST[@]}) -eq 1 ]; then
