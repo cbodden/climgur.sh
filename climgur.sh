@@ -130,6 +130,7 @@ function image()
         'u'|'upload')
             printf "Path to file ? (tab complete full path) : "
             read -e _FILE_PATH
+            eval _FILE_PATH=${_FILE_PATH}
             if grep -q "image data" <(file "${_FILE_PATH}"); then
                 curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
                     -F "image=@${_FILE_PATH}" \
