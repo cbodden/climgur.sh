@@ -56,9 +56,11 @@ Requirements
 ----
 
 - Bash (https://www.gnu.org/software/bash/)
-- cURL (http://curl.haxx.se/)
-- python (https://www.python.org/)
 - Scrot (https://en.wikipedia.org/wiki/Scrot)
+- cURL (http://curl.haxx.se/)
+- feh (http://feh.finalrewind.org/)
+- python (https://www.python.org/)
+- xdg-utils (https://www.freedesktop.org/wiki/Software/xdg-utils/)
 
 Todo / Add
 ----
