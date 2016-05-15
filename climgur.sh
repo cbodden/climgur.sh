@@ -82,7 +82,7 @@ function image()
 {
     case "${IMAGE}" in
         'd'|'del'|'delete')
-            local D_CNT=0
+            local D_CNT=1
             declare -a _DEL_LIST=($(\
                 for _LN in $(ls -v ${LOG_PATH})
                 do
@@ -168,7 +168,7 @@ function log()
             cp ${TMP_LOG} ${LOG_PATH}/${_ID}_${_DH}.log
         ;;
         'list')
-            local CNT=0
+            local CNT=1
             declare -a _LIST=($(\
                 for _LN in $(ls -v ${LOG_PATH})
                 do
@@ -198,7 +198,7 @@ esac
 
 function open()
 {
-    local CNT=0
+    local CNT=1
     declare -a _OPEN=($(\
         for _LN in $(ls -v ${LOG_PATH})
         do
