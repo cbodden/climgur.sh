@@ -123,14 +123,14 @@ function image()
                 usage;
             fi
         ;;
-        *) printf "\nImage function\n\n" ;;
+        *) usage ;;
     esac
 }
 
 function list()
 {
     local CNT=1
-    _LIST=($(\
+    local _LIST=($(\
         for _LN in $(ls -v ${LOG_PATH})
         do
             printf "%s\n" "[${CNT}]%${_LN}%--%${IMG_PATH}${_LN%%_*}.png"
@@ -156,9 +156,12 @@ function list()
 
 function log()
 {
-    local LOG_TYPE=${1}
-    case "${LOG_TYPE}" in
+    local _LTYPE=${1}
+    case "${LOG_TYPE-$_LTYPE}" in
         'account_info') ;;
+        'c'|'clean')
+            rm -f ${LOG_PATH}/deleted*
+        ;;
         'image_delete')
             LOG_NAME=${2}
             cat ${TMP_LOG} > ${LOG_PATH}/deleted_${LOG_NAME}
@@ -267,9 +270,10 @@ while getopts "ahi:l:osv" OPT; do
     case "${OPT}" in
         'a') account_info ;;
         'h') usage ;;
-        'i') IMAGE=$OPTARG
+        'i') IMAGE=${OPTARG}
             image ;;
-        'l') log list ;;
+        'l') LOG_TYPE=${OPTARG}
+            log ;;
         'o') open ;;
         's') IMAGE="screenshot"
             image ;;
