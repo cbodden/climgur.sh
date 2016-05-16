@@ -82,30 +82,13 @@ function image()
 {
     case "${IMAGE}" in
         'd'|'del'|'delete')
-            local D_CNT=1
-            declare -a _DEL_LIST=($(\
-                for _LN in $(ls -v ${LOG_PATH})
-                do
-                    echo ${_LN}
-                done))
-
-            if [ $(echo ${#_DEL_LIST[@]}) -ge 1 ]; then
-                printf -- "%s\n" "Here is the list of files:"
-                for _listL in "${_DEL_LIST[@]}"
-                do
-                    echo \
-                        "[${D_CNT}] ${_listL}  --  ${IMG_PATH}${_listL%%_*}.png"
-                    local D_CNT=$((D_CNT+1))
-                done
-                printf "\nEnter log number to delete and press [ENTER]: "
-                read DEL_LIST_IN
-                local DEL_LIST_SHOW="${_DEL_LIST[${DEL_LIST_IN}]}"
-            elif [ $(echo ${#_DEL_LIST[@]}) -eq 1 ]; then
-                local DEL_LIST_SHOW="$(echo ${_DEL_LIST[1]})"
-            else
-                printf -- "File not found \n\n" exit 1
-            fi
-
+            list
+            printf "\nEnter log number to delete and press [ENTER]: "
+            read DEL_IN
+            local _DF=$(echo ${_LIST[$((DEL_IN-1))]} \
+                | tr '%' ' ' \
+                | awk '{print $2}')
+            local DEL_LIST_SHOW="${_DF}"
             local HASH="$(echo ${DEL_LIST_SHOW##*_} | cut -d. -f1)"
 
             curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
@@ -114,8 +97,8 @@ function image()
                 | python -m json.tool \
                 | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
                 | tee ${TMP_LOG}
-            printf "\n${IMG_PATH}${_listL%%_*}.png deleted\n"
-            log image_delete ${_listL}
+            printf "\n${IMG_PATH}${DEL_LIST_SHOW%%_*}.png deleted\n"
+            log image_delete ${DEL_LIST_SHOW}
         ;;
         's'|'ss'|'screenshot')
             $(which scrot) -z ${TMP_IMG} >/dev/null 2>&1
