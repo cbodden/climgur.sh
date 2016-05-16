@@ -81,16 +81,13 @@ function account()
 function image()
 {
     case "${IMAGE}" in
+        'i'|'info')
+            log list
+        ;;
         'd'|'del'|'delete')
             list
-            printf "\nEnter log number to delete and press [ENTER]: "
-            read DEL_IN
-            local _DF=$(echo ${_LIST[$((DEL_IN-1))]} \
-                | tr '%' ' ' \
-                | awk '{print $2}')
-            local DEL_LIST_SHOW="${_DF}"
+            local DEL_LIST_SHOW="${_LF}"
             local HASH="$(echo ${DEL_LIST_SHOW##*_} | cut -d. -f1)"
-
             curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
                 -X DELETE \
                 "https://api.imgur.com/3/image/${HASH}" \
@@ -149,6 +146,12 @@ function list()
         printf "\nLog directory is empty.\n\n"
         exit 1
     fi
+
+    printf "%s" "Enter log / image number and press [ENTER]: "
+    read LIST_IN
+    _LF=$(echo ${_LIST[$((LIST_IN-1))]} \
+        | tr '%' ' ' \
+        | awk '{print $2}')
 }
 
 function log()
@@ -173,11 +176,6 @@ function log()
         ;;
         'list')
             list
-            printf "%s" "Enter log number and press [ENTER]: "
-            read LIST_IN
-            local _LF=$(echo ${_LIST[$((LIST_IN-1))]} \
-                | tr '%' ' ' \
-                | awk '{print $2}')
             local LIST_SHOW=${_LF}
             cat ${LOG_PATH}/${LIST_SHOW}
         ;;
@@ -187,13 +185,7 @@ function log()
 function open()
 {
     list
-    printf "%s" "Enter log number and press [ENTER]: "
-    read OPEN_IN
-    local _OF=$(echo ${_LIST[$((OPEN_IN-1))]} \
-        | tr '%' ' ' \
-        | awk '{print $2}')
-    local OPEN_SHOW="${_OF}"
-
+    local OPEN_SHOW="${_LF}"
     printf "\nOpen in browser or feh [(b)rowser or (f)eh]: "
     read OPEN_TYPE
     case "${OPEN_TYPE}" in
