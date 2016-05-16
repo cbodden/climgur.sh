@@ -64,7 +64,8 @@ function main()
 
 function account()
 {
-    case "${ACCOUNT}" in
+    local _ATYPE=${1}
+    case "${ACCOUNT-$_ATYPE}" in
         'i'|'info')
             curl -sH \
                 "Authorization:Client-ID ${CLIENT_ID}" \
@@ -287,7 +288,8 @@ giraffe
 # the actual selector of the script
 while getopts "ahi:l:osv" OPT; do
     case "${OPT}" in
-        'a') account_info ;;
+        'a')
+            account info ;;
         'h') usage ;;
         'i') IMAGE=${OPTARG}
             image ;;
