@@ -147,6 +147,27 @@ function image()
     esac
 }
 
+function list()
+{
+    local CNT=1
+    _LIST=($(\
+        for _LN in $(ls -v ${LOG_PATH})
+        do
+            printf "%s\n" "[${CNT}]%${_LN}%--%${IMG_PATH}${_LN%%_*}.png"
+            CNT=$((CNT+1))
+        done))
+
+    if [ $(echo ${#_LIST[@]}) -ge 1 ]; then
+        for ((CNT_L = 0; CNT_L < ${#_LIST[@]}; CNT_L++))
+        do
+            echo "${_LIST[$CNT_L]}" | tr '%' ' '
+        done
+    else
+        printf "\nLog directory is empty.\n\n"
+        exit 1
+    fi
+}
+
 function log()
 {
     local LOG_TYPE=${1}
@@ -168,30 +189,13 @@ function log()
             cp ${TMP_LOG} ${LOG_PATH}/${_ID}_${_DH}.log
         ;;
         'list')
-            local CNT=1
-            declare -a _LIST=($(\
-                for _LN in $(ls -v ${LOG_PATH})
-                do
-                    echo ${_LN}
-                done))
-
-            if [ $(echo ${#_LIST[@]}) -ge 1 ]; then
-                printf -- "%s\n" "Here is the list of files:"
-                for _listL in "${_LIST[@]}"
-                do
-                    echo "[${CNT}] ${_listL}  --  ${IMG_PATH}${_listL%%_*}.png"
-                    local CNT=$((CNT+1))
-                done
-                printf "%s" "Enter log number and press [ENTER]: "
-                read LIST_IN
-                local LIST_SHOW="${_LIST[${LIST_IN}]}"
-                cat ${LOG_PATH}/${LIST_SHOW}
-            elif [ $(echo ${#_LIST[@]}) -eq 1 ]; then
-                local LIST_SHOW="$(echo ${_LIST[1]})"
-                cat ${LOG_PATH}/${LIST_SHOW}
-            else
-                printf "\nLog directory is empty.\n\n" exit 1
-            fi
+            list
+            printf "%s" "Enter log number and press [ENTER]: "
+            read LIST_IN
+            _LF=$(echo ${_LIST[$((LIST_IN-1))]} | tr '%' ' ')
+            _LA=$(echo ${_LF} | awk '{print $2}')
+            LIST_SHOW=${_LA}
+            cat ${LOG_PATH}/${LIST_SHOW}
         ;;
 esac
 }
