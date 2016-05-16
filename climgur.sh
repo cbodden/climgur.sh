@@ -83,10 +83,11 @@ function giraffe()
 # created with cat file | gzip | base64
 # image from http://chris.com/ascii/index.php?art=animals/other (land)
 GIRAFFE="
-H4sIAGs5OVcAA7WRMQvDIBCFd3/Fa5YqpN5Y6JYxexdRMWtDpsyS317PUmg9O/bgVO7Te8dT4TtS
-SuNkp8Qn1bBQcix5HRK1DMdw18CO3QgE5PoWrotwBNjcR8jL5fwL/bG+ltxkneoaBHDvXZCN7+PW
-ESG2xGjollB1es7IrVCVmbEVJKR4YmhuaNrJCbaOjQWiqcPrX/FgM05NW57ehsSiyCSsCtUQH3z0
-kSLWD3r0Qz0BZB3Zj3ACAAA="
+H4sIAJ5EOVcAA82TsY6DMAyGd57ivy4NEsVjpW4du9+CCHLXVkydLZ79bIdK5VRMx8Y4Aecjdpy4
+wmpj5ubcntneqnUsqzaqxx1TgGHa/SbggUcdUYD4iui2KEwZrWxSkOth/wH1JchddQwR8j5HTPcc
+I2i0VXCKAyI7izohBRD5HbgIJAjKQ7pgVCoKy7aPZB7rIA2EFh79FZHXDuV24map/1n3a6loM1uA
+EIrOKHv6+9wP/UAD7u/B6X37D7PKZluUnpakIHGtf9rDbprX8ZGfkCxqluA2lT1r0tj3wZ692arT
+BVLgJaHmjQVLScUy29VlZlvRP1+cZgukCGZVUwPvzaobsTiZyuRG7RhY/QH3bBhfrwQAAA=="
 echo "${GIRAFFE}" | base64 -d | gunzip
 }
 
@@ -159,8 +160,11 @@ function list()
         exit 1
     fi
 
-    printf "%s" "Enter log / image number and press [ENTER]: "
+    printf "\n\nEnter log / image number and press [ENTER] or [x] to exit: "
     read LIST_IN
+    if [ ${LIST_IN} = "x" ]; then
+        exit
+    fi
     _LF=$(echo ${_LIST[$((LIST_IN-1))]} \
         | tr '%' ' ' \
         | awk '{print $2}')
