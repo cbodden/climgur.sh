@@ -181,7 +181,7 @@ function log()
             local LIST_SHOW=${_LF}
             cat ${LOG_PATH}/${LIST_SHOW}
         ;;
-esac
+    esac
 }
 
 function open()
