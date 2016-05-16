@@ -3,7 +3,7 @@
 set -e
 set -o pipefail
 readonly NAME=$(basename $0)
-readonly VER="0.20"
+readonly VER="0.35"
 readonly CLIMGUR_PATH="${HOME}/.climgur"
 readonly IMG_PATH="http://i.imgur.com/"
 
@@ -237,6 +237,8 @@ DESCRIPTION
             Options include :
                 delete
                     This option shows a list of files with choice of delete
+                info
+                    This option will show the details for the image
                 screenshot
                     This option takes a screenshot and uploads it
                 upload [path to file|path to folder]
@@ -245,6 +247,8 @@ DESCRIPTION
     -l [options]
             This handles showing what is in the log folder
             Options include :
+                clean
+                    This option will remove the deleted files logs
                 list
                     This option lists and shows log files
 
@@ -272,7 +276,6 @@ function version()
 
 EOL
 }
-
 
 # call function main
 main
