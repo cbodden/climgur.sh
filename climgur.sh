@@ -59,7 +59,7 @@ function main()
         done
     fi
 
-    # clear
+    clear
 }
 
 function account()
@@ -76,6 +76,18 @@ function account()
         ;;
         *) printf "\nAccount function\n\n" ;;
     esac
+}
+
+function giraffe()
+{
+# created with cat file | gzip | base64
+# image from http://chris.com/ascii/index.php?art=animals/other (land)
+GIRAFFE="
+H4sIAGs5OVcAA7WRMQvDIBCFd3/Fa5YqpN5Y6JYxexdRMWtDpsyS317PUmg9O/bgVO7Te8dT4TtS
+SuNkp8Qn1bBQcix5HRK1DMdw18CO3QgE5PoWrotwBNjcR8jL5fwL/bG+ltxkneoaBHDvXZCN7+PW
+ESG2xGjollB1es7IrVCVmbEVJKR4YmhuaNrJCbaOjQWiqcPrX/FgM05NW57ehsSiyCSsCtUQH3z0
+kSLWD3r0Qz0BZB3Zj3ACAAA="
+echo "${GIRAFFE}" | base64 -d | gunzip
 }
 
 function image()
@@ -264,7 +276,7 @@ EOL
 
 # call function main
 main
-
+giraffe
 # the actual selector of the script
 while getopts "ahi:l:osv" OPT; do
     case "${OPT}" in
