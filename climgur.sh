@@ -192,9 +192,10 @@ function log()
             list
             printf "%s" "Enter log number and press [ENTER]: "
             read LIST_IN
-            _LF=$(echo ${_LIST[$((LIST_IN-1))]} | tr '%' ' ')
-            _LA=$(echo ${_LF} | awk '{print $2}')
-            LIST_SHOW=${_LA}
+            local _LF=$(echo ${_LIST[$((LIST_IN-1))]} \
+                | tr '%' ' ' \
+                | awk '{print $2}')
+            local LIST_SHOW=${_LF}
             cat ${LOG_PATH}/${LIST_SHOW}
         ;;
 esac
@@ -202,38 +203,22 @@ esac
 
 function open()
 {
-    local CNT=1
-    declare -a _OPEN=($(\
-        for _LN in $(ls -v ${LOG_PATH})
-        do
-            echo ${_LN}
-        done))
-
-    if [ $(echo ${#_OPEN[@]}) -ge 1 ]; then
-        printf -- "%s\n" "Here is the list of files:"
-        for _listL in "${_OPEN[@]}"
-        do
-            echo "[${CNT}] ${_listL}  --  ${IMG_PATH}${_listL%%_*}.png"
-            local CNT=$((CNT+1))
-        done
-        printf "%s" "Enter log number to open and press [ENTER]: "
-        read OPEN_IN
-        local OPEN_SHOW="${_OPEN[${OPEN_IN}]}"
-    elif [ $(echo ${#_OPEN[@]}) -eq 1 ]; then
-        local OPEN_SHOW="$(echo ${_OPEN[1]})"
-    else
-        printf "\nLog directory is empty.\n\n"
-        exit 1
-    fi
+    list
+    printf "%s" "Enter log number and press [ENTER]: "
+    read OPEN_IN
+    local _OF=$(echo ${_LIST[$((OPEN_IN-1))]} \
+        | tr '%' ' ' \
+        | awk '{print $2}')
+    local OPEN_SHOW="${_OF}"
 
     printf "\nOpen in browser or feh [(b)rowser or (f)eh]: "
     read OPEN_TYPE
     case "${OPEN_TYPE}" in
         'b'|'browser')
-            xdg-open ${IMG_PATH}${_listL%%_*}.png
+            xdg-open ${IMG_PATH}${OPEN_SHOW%%_*}.png
         ;;
         'f'|'feh')
-            feh --scale-down ${IMG_PATH}${_listL%%_*}.png
+            feh --scale-down ${IMG_PATH}${OPEN_SHOW%%_*}.png
         ;;
     esac
 }
