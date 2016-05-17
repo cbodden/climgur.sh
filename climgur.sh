@@ -79,14 +79,11 @@ function account()
     esac
 }
 
-
-
-
 function album()
 {
     case "${ALBUM}" in
         'd'|'download')
-            TMP_ALB=$(mktemp --tmpdir img_album_$$-XXXX.tmp)
+            local TMP_ALB=$(mktemp --tmpdir img_album_$$-XXXX.tmp)
             printf "\n\nEnter album id and press [ENTER] or [x] to exit: "
             read ALBUM_IN
             curl -sH \
@@ -94,33 +91,46 @@ function album()
                 https://api.imgur.com/3/album/${ALBUM_IN}/ \
                 | python -m json.tool \
                 | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
-                | tee ${TMP_ALB}
+                >> ${TMP_ALB}
             local ALBUM_TITLE=$(\
                 grep -Po '"title":.*?[^\\]",' ${TMP_ALB} \
                 | tail -n 1 \
                 | awk -F'"' '{print $4}')
-            # local grep -Po '"link":.*?[^\\]",' album.txt | head -n -1 | awk -F'"' '{print $4}'
+            declare -a ALBUM_LINK=($(\
+                grep -Po '"link":.*?[^\\]",' ${TMP_ALB} \
+                | head -n -1 \
+                | awk -F'"' '{print $4}'))
+            printf "\nIs this the album you are looking for ?:"
+            printf "\n-- \"${ALBUM_TITLE}\" with ${#ALBUM_LINK[@]} images"
+            printf "\n\nIf it is wrong press [x] to exit or [ENTER] to continue"
+            read ALBUM_IN_CONFIRM
 
+            if [ "${ALBUM_IN_CONFIRM}" = "x" ]; then
+                exit
+            fi
 
+            printf "\nAbout to download this gallery to:"
+            printf "\n${CLIMGUR_PATH}/${ALBUM_TITLE/ /_}_${ALBUM_IN}\n\n"
+            pause "Press [ENTER] to continue"
+            local _ALBUM_PATH="${CLIMGUR_PATH}/${ALBUM_TITLE/ /_}_${ALBUM_IN}"
 
+            if [ ! -d "${_ALBUM_PATH}" ]; then
+                mkdir -p ${_ALBUM_PATH}
 
+            fi
 
+            for ((_ALCNT = 0; _ALCNT < ${#ALBUM_LINK[@]}; _ALCNT++))
+            do
+                wget ${ALBUM_LINK[$_ALCNT]} \
+                    --directory-prefix=${_ALBUM_PATH} \
+                    -nv 2>&1
+            done
 
-
-
-
+            printf "\n\nImages downloaded to ${_ALBUM_PATH}\n\n"
             rm -rf ${TMP_ALB}
         ;;
-
     esac
-
-
-
-
 }
-
-
-
 
 function giraffe()
 {
@@ -261,6 +271,11 @@ function open()
     esac
 }
 
+function pause()
+{
+    read -p "$*"
+}
+
 function usage()
 {
 cat <<EOL
@@ -329,10 +344,12 @@ EOL
 main
 giraffe
 # the actual selector of the script
-while getopts "ahi:l:osv" OPT; do
+while getopts "adhi:l:osv" OPT; do
     case "${OPT}" in
         'a')
             account info ;;
+        'd') ALBUM=${OPTARG}
+            album ;;
         'h') usage ;;
         'i') IMAGE=${OPTARG}
             image ;;
