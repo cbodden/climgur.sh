@@ -1,4 +1,5 @@
 # info needed for climgur.sh
+# api keys can be grabbed from : https://api.imgur.com/oauth2/addclient
 
 ClIENT_ID=""
 ClIENT_SECRET=""
