@@ -29,7 +29,7 @@ function main()
     trap 'rm -rf ${TMP_ALB} ${TMP_IMG} ${TMP_LOG} ; exit 1' 0 1 2 3 9 15
 
     # check if these deps exist else exit 1
-    local DEPS="curl python scrot"
+    local DEPS="curl python scrot wget"
     for _DEPS in ${DEPS}; do
         if [ -z "$(which ${_DEPS} 2>/dev/null)" ]; then
             printf "%s\n" "${_DEPS} not found"
@@ -110,6 +110,10 @@ function album()
                 | awk -F'"' '{print $4}' \
                 | sed -e 's/[^A-Za-z0-9._-]/_/g' \
                 | tr ' ' '_' )
+
+            if [ -z "${ALBUM_TITLE}" ]; then
+                ALBUM_TITLE="${ALBUM_IN}"
+            fi
 
             declare -a _A_LINK=($(\
                 grep -Po '"link":.*?[^\\]",' ${TMP_ALB} \
@@ -395,10 +399,10 @@ function version()
 {
     cat <<EOL
 
-                             ${NAME} version ${VER}
-                  Copyright (C) 2016 cesar@pissedoffadmins.com
-                This program comes with ABSOLUTELY NO WARRANTY.
-         This is free software, and you are welcome to redistribute it.
+                       ${NAME} version ${VER}
+            Copyright (C) 2016 cesar@pissedoffadmins.com
+          This program comes with ABSOLUTELY NO WARRANTY.
+   This is free software, and you are welcome to redistribute it.
 
 EOL
 }
