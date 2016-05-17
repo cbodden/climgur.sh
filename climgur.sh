@@ -120,8 +120,8 @@ function album()
                 | awk -F'"' '{print $4}' ))
 
             printf "\nIs this the album you are looking for ?:"
-            printf "\n-- \"${ALBUM_TITLE}\" with ${#ALBUM_LINK[@]} images"
-            printf "\n\nIf it is wrong press [x] to exit or [ENTER] to continue"
+            printf "\n-- \"${ALBUM_TITLE}\" with ${#_A_LINK[@]} images"
+            printf "\n\nPress [x] to exit or [ENTER] to continue: "
             read ALBUM_IN_CONFIRM
 
             if [ "${ALBUM_IN_CONFIRM}" = "x" ]; then
@@ -130,7 +130,7 @@ function album()
 
             printf "\nAbout to download this gallery to:"
             printf "\n${CLIMGUR_PATH}/${ALBUM_TITLE/ /_}_${ALBUM_IN}\n\n"
-            pause "Press [ENTER] to continue"
+            pause "Press [ENTER] to continue. "
             local _ALBUM_PATH="${CLIMGUR_PATH}/${ALBUM_TITLE/ /_}_${ALBUM_IN}"
 
             if [ ! -d "${_ALBUM_PATH}" ]; then
@@ -149,20 +149,19 @@ function album()
                 do
                     wget ${_A_GIFV[$CNT]} --directory-prefix=${_ALBUM_PATH} -nv
                 done
-                printf "\n\nImages downloaded to ${_ALBUM_PATH}\n\n"
-
+                printf "\n\nGifv files downloaded to ${_ALBUM_PATH}\n\n"
 
                 for ((CNT = 0; CNT < ${#_A_LINK[@]}; CNT++))
                 do
                     wget ${_A_MP4[$CNT]} --directory-prefix=${_ALBUM_PATH} -nv
                 done
-                printf "\n\nImages downloaded to ${_ALBUM_PATH}\n\n"
+                printf "\n\nMp4 files downloaded to ${_ALBUM_PATH}\n\n"
 
                 for ((CNT = 0; CNT < ${#_A_LINK[@]}; CNT++))
                 do
                     wget ${_A_WEBM[$CNT]} --directory-prefix=${_ALBUM_PATH} -nv
                 done
-                printf "\n\nImages downloaded to ${_ALBUM_PATH}\n\n"
+                printf "\n\nWebm files downloaded to ${_ALBUM_PATH}\n\n"
             fi
         ;;
     esac
