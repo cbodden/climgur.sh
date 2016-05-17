@@ -104,6 +104,7 @@ Requirements
 - cURL (http://curl.haxx.se/)
 - feh (http://feh.finalrewind.org/)
 - python (https://www.python.org/)
+- wget (https://www.gnu.org/software/wget/)
 - xdg-utils (https://www.freedesktop.org/wiki/Software/xdg-utils/)
 
 Todo / Add
