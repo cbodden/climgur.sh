@@ -29,9 +29,9 @@ function main()
     trap 'rm -rf ${TMP_ALB} ${TMP_IMG} ${TMP_LOG} ; exit 1' 0 1 2 3 9 15
 
     # check if these deps exist else exit 1
-    local DEPS="curl feh python scrot xdg-open"
+    local DEPS="curl python scrot"
     for _DEPS in ${DEPS}; do
-        if [ -z "$(which ${_DEPS} 2>>/dev/null)" ]; then
+        if [ -z "$(which ${_DEPS} 2>/dev/null)" ]; then
             printf "%s\n" "${_DEPS} not found"
             exit 1
         fi
@@ -94,6 +94,15 @@ function album()
                 | python -m json.tool \
                 | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
                 >> ${TMP_ALB}
+
+            local ALBUM_ERROR=$(\
+                grep -Po '"error":.*?[^\\]",' ${TMP_ALB} \
+                | awk -F'"' '{print $4}')
+
+            if [ -n "${ALBUM_ERROR}" ]; then
+                printf "\n${ALBUM_ERROR}\n"
+                exit 1
+            fi
 
             local ALBUM_TITLE=$(\
                 grep -Po '"title":.*?[^\\]",' ${TMP_ALB} \
@@ -298,10 +307,22 @@ function open()
     read OPEN_TYPE
     case "${OPEN_TYPE}" in
         'b'|'browser')
-            xdg-open ${IMG_PATH}${OPEN_SHOW%%_*}.png
+            if [ -z "$(which xdg-open 2>/dev/null)" ]; then
+                printf "\nxdg-open not found\n"
+                usage
+                exit 1
+            else
+                xdg-open ${IMG_PATH}${OPEN_SHOW%%_*}.png
+            fi
         ;;
         'f'|'feh')
-            feh --scale-down ${IMG_PATH}${OPEN_SHOW%%_*}.png
+            if [ -z "$(which feh 2>/dev/null)" ]; then
+                printf "\nfeh not found\n"
+                usage
+                exit 1
+            else
+                feh --scale-down ${IMG_PATH}${OPEN_SHOW%%_*}.png
+            fi
         ;;
     esac
 }
