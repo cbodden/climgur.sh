@@ -39,13 +39,13 @@ function main()
 
     # check if climgur log and rc path exists else create
     if [ ! -d "${CLIMGUR_PATH}" ]; then
-        mkdir -p ${CLIMGUR_PATH} ${CLIMGUR_PATH}/logs
+        mkdir -p ${CLIMGUR_PATH} ${CLIMGUR_PATH}/.logs
     fi
-    if [ ! -d "${CLIMGUR_PATH}/logs" ]; then
-        mkdir ${CLIMGUR_PATH}/logs
+    if [ ! -d "${CLIMGUR_PATH}/.logs" ]; then
+        mkdir ${CLIMGUR_PATH}/.logs
     fi
 
-    readonly LOG_PATH="${CLIMGUR_PATH}/logs"
+    readonly LOG_PATH="${CLIMGUR_PATH}/.logs"
 
     # check for .climgur.rc exists
     if [ ! -e "${CLIMGUR_PATH}/.climgur.rc" ]; then
@@ -84,6 +84,39 @@ function account()
 function album()
 {
     case "${ALBUM}" in
+        'e'|'delete'|'erase')
+            list_FOLDERS
+            printf "\n\nEnter number and press [ENTER] or [x] to exit: "
+            read ALBUM_IN
+            if [ "${ALBUM_IN}" = "x" ]; then
+                exit
+            fi
+
+            _AF=$(echo ${_A_LIST[$((ALBUM_IN-1))]} \
+                | tr '%' ' ' \
+                | awk '{print $2}')
+
+            printf "\nYou selected: "
+            printf "\n-- \"${_AF}\"\n"
+            printf "\nPress [x] to exit or [ENTER] to continue: "
+            read ALBUM_IN_CONFIRM
+
+            if [ "${ALBUM_IN_CONFIRM}" = "x" ]; then
+                exit
+            fi
+
+            printf "\nAbout to delete:"
+            printf "\n${CLIMGUR_PATH}/${_AF}/\n"
+            pause "Press [enter] to continue. "
+
+            exit
+
+
+
+
+
+
+        ;;
         'd'|'download')
             printf "\n\nEnter album id and press [ENTER] or [x] to exit: "
             read ALBUM_IN
@@ -177,6 +210,9 @@ function album()
                 printf "\n\nWebm files downloaded to ${_ALBUM_PATH}\n\n"
             fi
         ;;
+        'l'|'list')
+            list_FOLDERS
+        ;;
     esac
 }
 
@@ -200,7 +236,7 @@ function image()
             log list
         ;;
         'd'|'del'|'delete')
-            list
+            list_IMAGES
             local DEL_LIST_SHOW="${_LF}"
             local HASH="$(echo ${DEL_LIST_SHOW##*_} | cut -d. -f1)"
             curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
@@ -242,9 +278,32 @@ function image()
     esac
 }
 
-function list()
+function list_FOLDERS()
 {
     local CNT=1
+
+    declare -g _A_LIST=($(\
+        for _A_LS in $(ls -v ${CLIMGUR_PATH})
+        do
+            printf "%s\n" "[${CNT}]%${_A_LS}"
+            CNT=$((CNT+1))
+        done))
+
+    if [ $(echo ${#_A_LIST[@]}) -ge 1 ]; then
+        for ((CNT_AL =0; CNT_AL < ${#_A_LIST[@]}; CNT_AL++))
+        do
+            echo "${_A_LIST[$CNT_AL]}" | tr '%' ' '
+        done
+    else
+        printf "\nThere are no stored albums.\n\n"
+        exit 1
+    fi
+}
+
+function list_IMAGES()
+{
+    local CNT=1
+
     local _LIST=($(\
         for _LN in $(ls -v ${LOG_PATH})
         do
@@ -296,7 +355,7 @@ function log()
             cp ${TMP_LOG} ${LOG_PATH}/${_ID}_${_DH}.log
         ;;
         'list')
-            list
+            list_IMAGES
             local LIST_SHOW=${_LF}
             cat ${LOG_PATH}/${LIST_SHOW}
         ;;
@@ -305,7 +364,7 @@ function log()
 
 function open()
 {
-    list
+    list_IMAGES
     local OPEN_SHOW="${_LF}"
     printf "\nOpen in browser or feh [(b)rowser or (f)eh]: "
     read OPEN_TYPE
