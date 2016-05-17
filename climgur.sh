@@ -109,13 +109,9 @@ function album()
             printf "\n${CLIMGUR_PATH}/${_AF}/\n"
             pause "Press [enter] to continue. "
 
+            rm -rf "${CLIMGUR_PATH}/${_AF}/"
+            printf "\n${CLIMGUR_PATH}/${_AF}/ deleted\n"
             exit
-
-
-
-
-
-
         ;;
         'd'|'download')
             printf "\n\nEnter album id and press [ENTER] or [x] to exit: "
@@ -415,6 +411,8 @@ DESCRIPTION
     -d [options]
             This is to download an entire album
             Options include:
+                delete
+                    This option will delete the selected album locally
                 download
                     This option will ask for an album id and download the
                     entire album to ${CLIMGUR_PATH}/(ALBUM ID)

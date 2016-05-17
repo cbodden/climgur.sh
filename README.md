@@ -58,6 +58,8 @@ DESCRIPTION
     -d [options]
             This is to download an entire album
             Options include:
+                delete
+                    This option will delete the selected album locally
                 download
                     This option will ask for an album id and download the
                     entire album to the path where .climgur.rc is stored
