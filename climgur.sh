@@ -100,7 +100,7 @@ function album()
                 | awk -F'"' '{print $4}')
 
             if [ -n "${ALBUM_ERROR}" ]; then
-                printf "\n${ALBUM_ERROR}\n"
+                printf "\n${ALBUM_ERROR}\n\n"
                 exit 1
             fi
 
@@ -348,6 +348,13 @@ DESCRIPTION
 
 
     -a      Access your account info.
+
+    -d [options]
+            This is to download an entire album
+            Options include:
+                download
+                    This option will ask for an album id and download the
+                    entire album to ${CLIMGUR_PATH}/(ALBUM ID)
 
     -h      Show this file (usage).
 

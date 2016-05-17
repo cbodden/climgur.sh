@@ -55,6 +55,13 @@ DESCRIPTION
 
     -a      Access your account info.
 
+    -d [options]
+            This is to download an entire album
+            Options include:
+                download
+                    This option will ask for an album id and download the
+                    entire album to the path where .climgur.rc is stored
+
     -h      Show this file (usage).
 
     -i [options]
