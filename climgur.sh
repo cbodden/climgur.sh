@@ -64,8 +64,8 @@ function main()
 
 function account()
 {
-    local _ATYPE=${1}
-    case "${ACCOUNT-$_ATYPE}" in
+    local _ACCOUNT_TYPE_IN=${1}
+    case "${ACCOUNT-$_ACCOUNT_TYPE_IN}" in
         'i'|'info')
             curl -sH \
                 "Authorization:Client-ID ${CLIENT_ID}" \
@@ -78,6 +78,49 @@ function account()
         *) printf "\nAccount function\n\n" ;;
     esac
 }
+
+
+
+
+function album()
+{
+    case "${ALBUM}" in
+        'd'|'download')
+            TMP_ALB=$(mktemp --tmpdir img_album_$$-XXXX.tmp)
+            printf "\n\nEnter album id and press [ENTER] or [x] to exit: "
+            read ALBUM_IN
+            curl -sH \
+                "Authorization:Client-ID ${CLIENT_ID}" \
+                https://api.imgur.com/3/album/${ALBUM_IN}/ \
+                | python -m json.tool \
+                | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
+                | tee ${TMP_ALB}
+            local ALBUM_TITLE=$(\
+                grep -Po '"title":.*?[^\\]",' ${TMP_ALB} \
+                | tail -n 1 \
+                | awk -F'"' '{print $4}')
+            # local grep -Po '"link":.*?[^\\]",' album.txt | head -n -1 | awk -F'"' '{print $4}'
+
+
+
+
+
+
+
+
+
+            rm -rf ${TMP_ALB}
+        ;;
+
+    esac
+
+
+
+
+}
+
+
+
 
 function giraffe()
 {
@@ -173,8 +216,8 @@ function list()
 
 function log()
 {
-    local _LTYPE=${1}
-    case "${LOG_TYPE-$_LTYPE}" in
+    local _LOG_TYPE_IN=${1}
+    case "${LOG_TYPE-$_LOG_TYPE_IN}" in
         'account_info') ;;
         'c'|'clean')
             rm -f ${LOG_PATH}/deleted*
