@@ -12,10 +12,12 @@ function main()
     # temp file, trap statement, and OS check. exit on !{Linux,Darwin}
     case "$(uname 2>/dev/null)" in
         'Linux')
+            TMP_ALB=$(mktemp --tmpdir img_album_$$-XXXX.tmp)
             TMP_IMG=$(mktemp --tmpdir img_$$-XXXX.png)
             TMP_LOG=$(mktemp --tmpdir img_$$-XXXX.log)
         ;;
         'Darwin')
+            TMP_ALB=$(mktemp --tmpdir img_album_$$-XXXX.tmp)
             TMP_IMG=$(mktemp img_$$-XXXX.png)
             TMP_LOG=$(mktemp img_$$-XXXX.log)
         ;;
@@ -24,7 +26,7 @@ function main()
             exit 1
         ;;
     esac
-    trap 'rm -rf ${TMP_IMG} ${TMP_LOG} ; exit 1' 0 1 2 3 9 15
+    trap 'rm -rf ${TMP_ALB} ${TMP_IMG} ${TMP_LOG} ; exit 1' 0 1 2 3 9 15
 
     # check if these deps exist else exit 1
     local DEPS="curl feh python scrot xdg-open"
@@ -83,23 +85,40 @@ function album()
 {
     case "${ALBUM}" in
         'd'|'download')
-            local TMP_ALB=$(mktemp --tmpdir img_album_$$-XXXX.tmp)
             printf "\n\nEnter album id and press [ENTER] or [x] to exit: "
             read ALBUM_IN
+
             curl -sH \
                 "Authorization:Client-ID ${CLIENT_ID}" \
                 https://api.imgur.com/3/album/${ALBUM_IN}/ \
                 | python -m json.tool \
                 | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
                 >> ${TMP_ALB}
+
             local ALBUM_TITLE=$(\
                 grep -Po '"title":.*?[^\\]",' ${TMP_ALB} \
                 | tail -n 1 \
-                | awk -F'"' '{print $4}')
-            declare -a ALBUM_LINK=($(\
+                | awk -F'"' '{print $4}' \
+                | sed -e 's/[^A-Za-z0-9._-]/_/g' \
+                | tr ' ' '_' )
+
+            declare -a _A_LINK=($(\
                 grep -Po '"link":.*?[^\\]",' ${TMP_ALB} \
-                | head -n -1 \
-                | awk -F'"' '{print $4}'))
+                | awk -F'"' '{print $4}' \
+                | grep -v ${ALBUM_IN} ))
+
+            declare -a _A_GIFV=($(\
+                grep -Po '"gifv":.*?[^\\]",' ${TMP_ALB} \
+                | awk -F'"' '{print $4}' ))
+
+            declare -a _A_MP4=($(\
+                grep -Po '"mp4":.*?[^\\]",' ${TMP_ALB} \
+                | awk -F'"' '{print $4}' ))
+
+            declare -a _A_WEBM=($(\
+                grep -Po '"webm":.*?[^\\]",' ${TMP_ALB} \
+                | awk -F'"' '{print $4}' ))
+
             printf "\nIs this the album you are looking for ?:"
             printf "\n-- \"${ALBUM_TITLE}\" with ${#ALBUM_LINK[@]} images"
             printf "\n\nIf it is wrong press [x] to exit or [ENTER] to continue"
@@ -119,15 +138,32 @@ function album()
 
             fi
 
-            for ((_ALCNT = 0; _ALCNT < ${#ALBUM_LINK[@]}; _ALCNT++))
+            for ((CNT = 0; CNT < ${#_A_LINK[@]}; CNT++))
             do
-                wget ${ALBUM_LINK[$_ALCNT]} \
-                    --directory-prefix=${_ALBUM_PATH} \
-                    -nv 2>&1
+                wget ${_A_LINK[$CNT]} --directory-prefix=${_ALBUM_PATH} -nv
             done
-
             printf "\n\nImages downloaded to ${_ALBUM_PATH}\n\n"
-            rm -rf ${TMP_ALB}
+
+            if [ "${#_A_LINK[@]}" -eq "${#_A_GIFV[@]}" ]; then
+                for ((CNT = 0; CNT < ${#_A_LINK[@]}; CNT++))
+                do
+                    wget ${_A_GIFV[$CNT]} --directory-prefix=${_ALBUM_PATH} -nv
+                done
+                printf "\n\nImages downloaded to ${_ALBUM_PATH}\n\n"
+
+
+                for ((CNT = 0; CNT < ${#_A_LINK[@]}; CNT++))
+                do
+                    wget ${_A_MP4[$CNT]} --directory-prefix=${_ALBUM_PATH} -nv
+                done
+                printf "\n\nImages downloaded to ${_ALBUM_PATH}\n\n"
+
+                for ((CNT = 0; CNT < ${#_A_LINK[@]}; CNT++))
+                do
+                    wget ${_A_WEBM[$CNT]} --directory-prefix=${_ALBUM_PATH} -nv
+                done
+                printf "\n\nImages downloaded to ${_ALBUM_PATH}\n\n"
+            fi
         ;;
     esac
 }
@@ -344,7 +380,7 @@ EOL
 main
 giraffe
 # the actual selector of the script
-while getopts "adhi:l:osv" OPT; do
+while getopts "ad:hi:l:osv" OPT; do
     case "${OPT}" in
         'a')
             account info ;;
