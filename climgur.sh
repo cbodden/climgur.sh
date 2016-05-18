@@ -440,7 +440,8 @@ DESCRIPTION
                 clean
                     This option will remove the deleted files logs
                 list
-                    This option lists and shows log files
+                    This option lists and shows log files located at:
+                    ${LOG_PATH}
 
     -o      This opens image in either browser or feh
 
