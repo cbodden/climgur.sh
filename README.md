@@ -63,6 +63,8 @@ DESCRIPTION
                 download
                     This option will ask for an album id and download the
                     entire album to the path where .climgur.rc is stored
+                list
+                    This option lists all the downloaded albums
 
     -h      Show this file (usage).
 

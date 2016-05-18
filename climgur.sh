@@ -208,6 +208,7 @@ function album()
         ;;
         'l'|'list')
             list_FOLDERS
+            printf "\n"
         ;;
     esac
 }
@@ -416,6 +417,8 @@ DESCRIPTION
                 download
                     This option will ask for an album id and download the
                     entire album to ${CLIMGUR_PATH}/(ALBUM ID)
+                list
+                    This option lists all the downloaded albums
 
     -h      Show this file (usage).
 
