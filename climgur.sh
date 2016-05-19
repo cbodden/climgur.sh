@@ -83,7 +83,37 @@ function account()
 
 function album()
 {
+    if [ -e ${CLIMGUR_PATH}/.climgur_oauth2 ]; then
+        source ${CLIMGUR_PATH}/.climgur_oauth2
+    fi
+
+    if [ -z ${ACCESS_TOKEN} ]; then
+        local _AUTH="Client-ID ${CLIENT_ID}"
+    else
+        local _AUTH="Bearer ${ACCESS_TOKEN}"
+    fi
+
     case "${ALBUM}" in
+        'c'|'create')
+            printf "\n\nAbout to create a new album for ${USER_NAME}.\n"
+            printf "\nAlbum Name: "
+            read _ALBUM_NAME
+            printf "\nAlbum Title: "
+            read _ALBUM_TITLE
+            printf "\nAlbum Description: "
+            read _ALBUM_DESC
+
+            curl -X POST \
+                -H "Authorization: ${_AUTH}" \
+                -F "album=${_ALBUM_NAME}" \
+                -F "title=${_ALBUM_TITLE}" \
+                -F "description=${_ALBUM_DESC}" \
+                "https://api.imgur.com/3/album" \
+                | python -m json.tool \
+                | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
+                | tee ${TMP_LOG}
+            log album_create
+        ;;
         'e'|'delete'|'erase')
             list_FOLDERS
             printf "\n\nEnter number and press [ENTER] or [x] to exit: "
@@ -222,7 +252,7 @@ function authentication()
     fi
 
     source ${OAUTH2}
-    printf "\n\nWe need to get the pin number.\n"
+    printf "\nWe need to get a pin number for authentication.\n"
     printf "\nCheck your browser and copy paste the pin below.\n"
 
     local AUTH="client_id=${CLIENT_ID}&response_type=pin&state=testing"
@@ -247,10 +277,9 @@ function authentication()
         | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' -e 's/"//g' -e 's/,//g' \
         -e 's/: /="/g' -e 's/$/"/g' -e 's/[^ ]*=/\U\0/g' \
         > ${OAUTH2}
+
+        printf "\nAuth info stored to ${OAUTH2}\n"
 }
-
-
-
 
 function giraffe()
 {
@@ -297,7 +326,7 @@ function image()
         's'|'ss'|'screenshot')
             $(which scrot) -z ${TMP_IMG} >/dev/null 2>&1
             curl -X POST \
-                -H 'Authorization:'" ${_AUTH}" \
+                -H "Authorization: ${_AUTH}" \
                 -F "image=@${TMP_IMG}" \
                 "https://api.imgur.com/3/upload" \
                 | python -m json.tool \
@@ -353,7 +382,7 @@ function list_IMAGES()
     local CNT=1
 
     local _LIST=($(\
-        for _LN in $(ls -v ${LOG_PATH})
+        for _LN in $(ls -v ${LOG_PATH} | grep -v "ALBUM")
         do
             printf "%s\n" "[${CNT}]%${_LN}%--%${IMG_PATH}${_LN%%_*}.png"
             CNT=$((CNT+1))
@@ -385,11 +414,16 @@ function log()
     case "${LOG_TYPE-$_LOG_TYPE_IN}" in
         'account_info') ;;
         'c'|'clean')
-            rm -f ${LOG_PATH}/deleted*
+            rm -f ${LOG_PATH}/DELETED*
+        ;;
+        'album_create')
+            local _ID=$(grep "\"id\"" ${TMP_LOG} | cut -d\" -f4)
+            local _DH=$(grep "\"deletehash\"" ${TMP_LOG} | cut -d\" -f4)
+            cp ${TMP_LOG} ${LOG_PATH}/ALBUM_${_ID}_${_DH}.log
         ;;
         'image_delete')
             LOG_NAME=${2}
-            cat ${TMP_LOG} > ${LOG_PATH}/deleted_${LOG_NAME}
+            cat ${TMP_LOG} > ${LOG_PATH}/DELETED_${LOG_NAME}
             rm ${LOG_PATH}/${LOG_NAME}
         ;;
         'image_screenshot')
