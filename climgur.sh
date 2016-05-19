@@ -26,7 +26,7 @@ function main()
             exit 1
         ;;
     esac
-    trap 'rm -rf ${TMP_ALB} ${TMP_IMG} ${TMP_LOG} ; exit 1' 0 1 2 3 9 15
+    trap 'rm -rf ${TMP_ALB} ${TMP_IMG} ${TMP_LOG} ; exit' 0 1 2 3 9 15
 
     # check if these deps exist else exit 1
     local DEPS="curl python scrot wget xdg-open"
