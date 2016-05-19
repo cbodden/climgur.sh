@@ -216,19 +216,18 @@ function album()
 function authentication()
 {
     local OAUTH2="${CLIMGUR_PATH}/.climgur_oauth2"
+
     if [ ! -e "${OAUTH2}" ]; then
         touch ${OAUTH2}
     fi
 
-    printf "\n\nWe need to get the pin number."
-    printf "\nCheck your browser and copy paste the pin below."
+    source ${OAUTH2}
+    printf "\n\nWe need to get the pin number.\n"
+    printf "\nCheck your browser and copy paste the pin below.\n"
 
     local AUTH="client_id=${CLIENT_ID}&response_type=pin&state=testing"
 
-    xdg-open curl \
-        -sH "Authorization: Client-ID ${CLIENT_ID} "\
-        "https://api.imgur.com/oauth2/authorize?${AUTH}"
-
+    xdg-open "https://api.imgur.com/oauth2/authorize?${AUTH}"
 
     printf "\nNow paste the pin here: "
     read OATH2_PIN
@@ -238,21 +237,16 @@ function authentication()
         exit
     fi
 
-    curl \
-        -X POST \
+    curl -s -X POST \
         -F "client_id=${CLIENT_ID}" \
         -F "client_secret=${CLIENT_SECRET}" \
         -F "grant_type=pin" \
         -F "pin=${OATH2_PIN}" \
         https://api.imgur.com/oauth2/token \
         | python -mjson.tool \
-        | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
+        | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' -e 's/"//g' -e 's/,//g' \
+        -e 's/: /="/g' -e 's/$/"/g' -e 's/[^ ]*=/\U\0/g' \
         > ${OAUTH2}
-
-
-
-
-
 }
 
 
@@ -292,6 +286,28 @@ function image()
         ;;
         's'|'ss'|'screenshot')
             $(which scrot) -z ${TMP_IMG} >/dev/null 2>&1
+
+            if [ -e ${CLIMGUR_PATH}/.climgur_oauth2 ]; then
+                source ${CLIMGUR_PATH}/.climgur_oauth2
+            fi
+
+            if [ -z ${ACCESS_TOKEN} ]; then
+                local _AUTH="Client-ID ${CLIENT_ID}"
+            else
+                local _AUTH="Bearer ${ACCESS_TOKEN}"
+            fi
+
+            curl -X POST \
+                -H 'Authorization:'" ${_AUTH}" \
+                -F "image=@${TMP_IMG}" \
+                "https://api.imgur.com/3/upload" \
+                | python -m json.tool \
+                | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
+                | tee ${TMP_LOG}
+            log image_screenshot
+        ;;
+        'xs'|'xss'|'xscreenshot')
+            $(which scrot) -z ${TMP_IMG} >/dev/null 2>&1
             curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
                 -F "image=@${TMP_IMG}" \
                 "https://api.imgur.com/3/upload" \
@@ -300,7 +316,7 @@ function image()
                 | tee ${TMP_LOG}
             log image_screenshot
         ;;
-        'u'|'upload')
+    'u'|'upload')
             printf "Path to file ? (tab complete full path) : "
             read -e _FILE_PATH
             eval _FILE_PATH=${_FILE_PATH}
@@ -511,10 +527,10 @@ EOL
 main
 giraffe
 # the actual selector of the script
-while getopts "ad:hi:l:osv" OPT; do
+while getopts "acd:hi:l:osv" OPT; do
     case "${OPT}" in
-        'a')
-            account info ;;
+        'a') account info ;;
+        'c') authentication ;;
         'd') ALBUM=${OPTARG}
             album ;;
         'h') usage ;;
