@@ -29,7 +29,7 @@ function main()
     trap 'rm -rf ${TMP_ALB} ${TMP_IMG} ${TMP_LOG} ; exit 1' 0 1 2 3 9 15
 
     # check if these deps exist else exit 1
-    local DEPS="curl python scrot wget"
+    local DEPS="curl python scrot wget xdg-open"
     for _DEPS in ${DEPS}; do
         if [ -z "$(which ${_DEPS} 2>/dev/null)" ]; then
             printf "%s\n" "${_DEPS} not found"
@@ -213,6 +213,24 @@ function album()
     esac
 }
 
+function authentication()
+{
+    local OAUTH2="${CLIMGUR_PATH}/.climgur_oauth2"
+    if [ ! -e "${OAUTH2}" ]; then
+        touch ${OAUTH2}
+    fi
+
+    printf "\n\nWe need to get the pin number."
+    printf "\nCheck your browser."
+
+
+
+
+}
+
+
+
+
 function giraffe()
 {
 # created with cat file | gzip | base64
@@ -367,13 +385,7 @@ function open()
     read OPEN_TYPE
     case "${OPEN_TYPE}" in
         'b'|'browser')
-            if [ -z "$(which xdg-open 2>/dev/null)" ]; then
-                printf "\nxdg-open not found\n"
-                usage
-                exit 1
-            else
-                xdg-open ${IMG_PATH}${OPEN_SHOW%%_*}.png
-            fi
+            xdg-open ${IMG_PATH}${OPEN_SHOW%%_*}.png
         ;;
         'f'|'feh')
             if [ -z "$(which feh 2>/dev/null)" ]; then
