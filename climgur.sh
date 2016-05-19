@@ -267,6 +267,16 @@ echo "${GIRAFFE}" | base64 -d | gunzip
 
 function image()
 {
+    if [ -e ${CLIMGUR_PATH}/.climgur_oauth2 ]; then
+        source ${CLIMGUR_PATH}/.climgur_oauth2
+    fi
+
+    if [ -z ${ACCESS_TOKEN} ]; then
+        local _AUTH="Client-ID ${CLIENT_ID}"
+    else
+        local _AUTH="Bearer ${ACCESS_TOKEN}"
+    fi
+
     case "${IMAGE}" in
         'i'|'info')
             log list
@@ -286,17 +296,6 @@ function image()
         ;;
         's'|'ss'|'screenshot')
             $(which scrot) -z ${TMP_IMG} >/dev/null 2>&1
-
-            if [ -e ${CLIMGUR_PATH}/.climgur_oauth2 ]; then
-                source ${CLIMGUR_PATH}/.climgur_oauth2
-            fi
-
-            if [ -z ${ACCESS_TOKEN} ]; then
-                local _AUTH="Client-ID ${CLIENT_ID}"
-            else
-                local _AUTH="Bearer ${ACCESS_TOKEN}"
-            fi
-
             curl -X POST \
                 -H 'Authorization:'" ${_AUTH}" \
                 -F "image=@${TMP_IMG}" \
@@ -306,22 +305,13 @@ function image()
                 | tee ${TMP_LOG}
             log image_screenshot
         ;;
-        'xs'|'xss'|'xscreenshot')
-            $(which scrot) -z ${TMP_IMG} >/dev/null 2>&1
-            curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
-                -F "image=@${TMP_IMG}" \
-                "https://api.imgur.com/3/upload" \
-                | python -m json.tool \
-                | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
-                | tee ${TMP_LOG}
-            log image_screenshot
-        ;;
-    'u'|'upload')
+        'u'|'upload')
             printf "Path to file ? (tab complete full path) : "
             read -e _FILE_PATH
             eval _FILE_PATH=${_FILE_PATH}
             if grep -q "image data" <(file "${_FILE_PATH}"); then
-                curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
+                curl -X POST \
+                    -H 'Authorization:'" ${_AUTH}" \
                     -F "image=@${_FILE_PATH}" \
                     "https://api.imgur.com/3/upload" \
                     | python -m json.tool \
