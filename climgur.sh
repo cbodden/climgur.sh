@@ -3,7 +3,7 @@
 set -e
 set -o pipefail
 readonly NAME=$(basename $0)
-readonly VER="0.35"
+readonly VER="0.50"
 readonly CLIMGUR_PATH="${HOME}/.climgur"
 readonly IMG_PATH="http://i.imgur.com/"
 
