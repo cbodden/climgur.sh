@@ -97,8 +97,8 @@ function account()
                 -F "pin=${OATH2_PIN}" \
                 https://api.imgur.com/oauth2/token \
                 | python -mjson.tool \
-                | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' -e 's/"//g' -e 's/,//g' \
-                -e 's/: /="/g' -e 's/$/"/g' -e 's/[^ ]*=/\U\0/g' \
+                | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' -e 's/"//g' \
+                -e 's/,//g' -e 's/: /="/g' -e 's/$/"/g' -e 's/[^ ]*=/\U\0/g' \
                 > ${OAUTH2}
 
                 printf "\nAuth info stored to ${OAUTH2}\n\n"
@@ -138,7 +138,7 @@ function album()
             printf "\nAlbum Description: "
             read _ALBUM_DESC
 
-            curl -X POST \
+            curl -s -X POST \
                 -H "Authorization: ${_AUTH}" \
                 -F "album=${_ALBUM_NAME}" \
                 -F "title=${_ALBUM_TITLE}" \
@@ -311,7 +311,7 @@ function image()
             list_IMAGES
             local DEL_LIST_SHOW="${_LF}"
             local HASH="$(echo ${DEL_LIST_SHOW##*_} | cut -d. -f1)"
-            curl -sH "Authorization: Client-ID ${CLIENT_ID}" \
+            curl -sH "Authorization: ${_AUTH}" \
                 -X DELETE \
                 "https://api.imgur.com/3/image/${HASH}" \
                 | python -m json.tool \
@@ -322,7 +322,7 @@ function image()
         ;;
         's'|'ss'|'screenshot')
             $(which scrot) -z ${TMP_IMG} >/dev/null 2>&1
-            curl -X POST \
+            curl -s -X POST \
                 -H "Authorization: ${_AUTH}" \
                 -F "image=@${TMP_IMG}" \
                 "https://api.imgur.com/3/upload" \
@@ -336,8 +336,8 @@ function image()
             read -e _FILE_PATH
             eval _FILE_PATH=${_FILE_PATH}
             if grep -q "image data" <(file "${_FILE_PATH}"); then
-                curl -X POST \
-                    -H 'Authorization:'" ${_AUTH}" \
+                curl -s -X POST \
+                    -H "Authorization: ${_AUTH}" \
                     -F "image=@${_FILE_PATH}" \
                     "https://api.imgur.com/3/upload" \
                     | python -m json.tool \
