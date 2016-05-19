@@ -86,7 +86,7 @@ function account()
             read OATH2_PIN
 
             if [ -z "${OATH2_PIN}" ]; then
-                printf "\nNo pin number pasted"
+                printf "\nNo pin number pasted.\n"
                 exit
             fi
 
@@ -112,7 +112,7 @@ function account()
                 | tee ${TMP_LOG}
             log account_info
         ;;
-        *) printf "\nAccount function\n\n" ;;
+        *) usage ;;
     esac
 }
 
@@ -276,44 +276,6 @@ function album()
             printf "\n"
         ;;
     esac
-}
-
-function authentication()
-{
-    local OAUTH2="${CLIMGUR_PATH}/.climgur_oauth2"
-
-    if [ ! -e "${OAUTH2}" ]; then
-        touch ${OAUTH2}
-    fi
-
-    source ${OAUTH2}
-    printf "\nWe need to get a pin number for authentication.\n"
-    printf "\nCheck your browser and copy paste the pin below.\n"
-
-    local AUTH="client_id=${CLIENT_ID}&response_type=pin&state=testing"
-
-    xdg-open "https://api.imgur.com/oauth2/authorize?${AUTH}"
-
-    printf "\nNow paste the pin here: "
-    read OATH2_PIN
-
-    if [ -z "${OATH2_PIN}" ]; then
-        printf "\nNo pin number pasted"
-        exit
-    fi
-
-    curl -s -X POST \
-        -F "client_id=${CLIENT_ID}" \
-        -F "client_secret=${CLIENT_SECRET}" \
-        -F "grant_type=pin" \
-        -F "pin=${OATH2_PIN}" \
-        https://api.imgur.com/oauth2/token \
-        | python -mjson.tool \
-        | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' -e 's/"//g' -e 's/,//g' \
-        -e 's/: /="/g' -e 's/$/"/g' -e 's/[^ ]*=/\U\0/g' \
-        > ${OAUTH2}
-
-        printf "\nAuth info stored to ${OAUTH2}\n"
 }
 
 function giraffe()
