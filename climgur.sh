@@ -101,7 +101,7 @@ function account()
                 -e 's/: /="/g' -e 's/$/"/g' -e 's/[^ ]*=/\U\0/g' \
                 > ${OAUTH2}
 
-                printf "\nAuth info stored to ${OAUTH2}\n"
+                printf "\nAuth info stored to ${OAUTH2}\n\n"
         ;;
         'i'|'info')
             curl -sH \
@@ -520,7 +520,6 @@ DESCRIPTION
     Access your Imgur account from the command line.
     Options can only be used one at a time for now.
 
-
     -a [options]
             Access account info and authentication
             Options include:
@@ -530,8 +529,10 @@ DESCRIPTION
                     This will show you the json info for your account
 
     -d [options]
-            This is to download an entire album
+            This is for folder / album clone, create, or delete
             Options include:
+                create
+                    This will create an empty album into your account
                 delete
                     This option will delete the selected album locally
                 download
@@ -592,7 +593,7 @@ EOL
 main
 giraffe
 # the actual selector of the script
-while getopts "ad:hi:l:osv" OPT; do
+while getopts "a:d:hi:l:osv" OPT; do
     case "${OPT}" in
         'a') ACCOUNT=${OPTARG}
             account ;;

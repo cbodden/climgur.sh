@@ -52,7 +52,6 @@ DESCRIPTION
     Access your Imgur account from the command line.
     Options can only be used one at a time for now.
 
-
     -a [options]
             Access account info and authentication
             Options include:
@@ -62,8 +61,10 @@ DESCRIPTION
                     This will show you the json info for your account
 
     -d [options]
-            This is to download an entire album
+            This is for folder / album clone, create, or delete
             Options include:
+                create
+                    This will create an empty album into your account
                 delete
                     This option will delete the selected album locally
                 download
