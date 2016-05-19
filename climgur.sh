@@ -521,7 +521,13 @@ DESCRIPTION
     Options can only be used one at a time for now.
 
 
-    -a      Access your account info.
+    -a [options]
+            Access account info and authentication
+            Options include:
+                auth
+                    This will do initial OAUTH2 auth
+                info
+                    This will show you the json info for your account
 
     -d [options]
             This is to download an entire album
