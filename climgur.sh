@@ -221,7 +221,34 @@ function authentication()
     fi
 
     printf "\n\nWe need to get the pin number."
-    printf "\nCheck your browser."
+    printf "\nCheck your browser and copy paste the pin below."
+
+    local AUTH="client_id=${CLIENT_ID}&response_type=pin&state=testing"
+
+    xdg-open curl \
+        -sH "Authorization: Client-ID ${CLIENT_ID} "\
+        "https://api.imgur.com/oauth2/authorize?${AUTH}"
+
+
+    printf "\nNow paste the pin here: "
+    read OATH2_PIN
+
+    if [ -z "${OATH2_PIN}" ]; then
+        printf "\nNo pin number pasted"
+        exit
+    fi
+
+    curl \
+        -X POST \
+        -F "client_id=${CLIENT_ID}" \
+        -F "client_secret=${CLIENT_SECRET}" \
+        -F "grant_type=pin" \
+        -F "pin=${OATH2_PIN}" \
+        https://api.imgur.com/oauth2/token \
+        | python -mjson.tool \
+        | sed -e 's/^ *//g' -e '/{/d' -e '/}/d' \
+        > ${OAUTH2}
+
 
 
 
